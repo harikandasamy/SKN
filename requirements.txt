@@ -1,4 +1,4 @@
 streamlit
 pyodbc
 pandas
-pymssql
+pymssql==2.2.7
