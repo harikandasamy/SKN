@@ -5,6 +5,7 @@ from datetime import datetime
 import json
 import smtplib
 from email.mime.text import MIMEText
+from urllib.parse import quote_plus  # Import the specific function needed
 
 # Page configuration
 st.set_page_config(page_title="SKN Data Management", layout="wide")
