@@ -25,27 +25,26 @@ if 'payment_data' not in st.session_state:
 
 # Database connection function
 def open_connection():
-    try:        
-        server = 'tcp:sknfsprodazure.database.windows.net,1433'
-        database = 'sknfsprodazure'
-        username = 'sknfsprodazure'
-        password = 'Password2025@'
-        
-        params = urllib.parse.quote_plus(
-            f"DRIVER=ODBC Driver 17 for SQL Server;"
-            f"SERVER={server};"
-            f"DATABASE={database};"
-            f"UID={username};"
-            f"PWD={password};"
+   
+       
+       
+    try:
+        db_server = 'sknfsprodazure.database.windows.net'
+        db_name = 'sknfsprodazure'
+        db_username = 'sknfsprodazure'
+        db_password = 'Password2025@'
+        conn = pyodbc.connect(
+            "Driver={ODBC Driver 17 for SQL Server};"
+            f"Server=tcp:{st.secrets['db_server']},1433;"
+            f"Database={st.secrets['db_name']};"
+            f"Uid={st.secrets['db_username']};"
+            f"Pwd={st.secrets['db_password']};"
             "Encrypt=yes;"
             "TrustServerCertificate=no;"
             "Connection Timeout=30;"
-        )
-        
-        engine = create_engine(f"mssql+pyodbc:///?odbc_connect={params}")
-        return engine.connect()
-
-        
+        )        
+        return conn       
+          
     except Exception as e:
         st.error(f"Database connection error: {str(e)}")
         return None
