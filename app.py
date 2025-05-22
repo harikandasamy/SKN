@@ -5,6 +5,7 @@ from datetime import datetime
 import json
 import smtplib
 from email.mime.text import MIMEText
+import urllib
 from urllib.parse import quote_plus  # Import the specific function needed
 
 # Page configuration
