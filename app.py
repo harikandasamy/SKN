@@ -26,14 +26,14 @@ if 'payment_data' not in st.session_state:
 # Database connection function
 def open_connection():
     try:        
-        server = 'sknfsprodazure.database.windows.net'
-        database = 'sknfsprodazure_final'
-        username = 'sknfsprodazure'
-        password = 'Password2025@'
+        server = 'P3NWPLSK12SQL-v06.shr.prod.phx3.secureserver.net'
+        database = 'SKNFSPROD'
+        username = 'SKNFSPROD'
+        password = 'Password2011@'
         
         params = urllib.parse.quote_plus(
             f"DRIVER=ODBC Driver 17 for SQL Server;"
-            f"SERVER=tcp:{server},1433;"
+            f"SERVER={server};"
             f"DATABASE={database};"
             f"UID={username};"
             f"PWD={password};"
