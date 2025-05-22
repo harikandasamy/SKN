@@ -32,7 +32,7 @@ def open_connection():
         password = 'Password2025@'
         
         params = urllib.parse.quote_plus(
-            f"DRIVER=ODBC Driver 17 for SQL Server;"
+            f"DRIVER=SQL Server;"
             f"SERVER=tcp:{server},1433;"
             f"DATABASE={database};"
             f"UID={username};"
