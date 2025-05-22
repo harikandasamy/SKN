@@ -7,6 +7,8 @@ import smtplib
 from email.mime.text import MIMEText
 import urllib
 from urllib.parse import quote_plus  # Import the specific function needed
+import sqlalchemy
+from sqlalchemy import create_engine  # Alternative method
 
 # Page configuration
 st.set_page_config(page_title="SKN Data Management", layout="wide")
