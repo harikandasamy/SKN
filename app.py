@@ -27,7 +27,7 @@ if 'payment_data' not in st.session_state:
 def open_connection():
     try:        
         server = 'tcp:sknfsprodazure.database.windows.net,1433'
-        database = 'sknfsprodazure_final'
+        database = 'sknfsprodazure'
         username = 'sknfsprodazure'
         password = 'Password2025@'
         
