@@ -29,10 +29,7 @@ def open_connection():
        
        
     try:
-        db_server = 'sknfsprodazure.database.windows.net'
-        db_name = 'sknfsprodazure'
-        db_username = 'sknfsprodazure'
-        db_password = 'Password2025@'
+    
         conn = pyodbc.connect(
             "Driver={ODBC Driver 17 for SQL Server};"
             f"Server=tcp:{st.secrets['db_server']},1433;"
