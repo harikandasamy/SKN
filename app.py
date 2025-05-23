@@ -168,10 +168,10 @@ st.title("Show SKN Data")
 # Credentials Form
 with st.form("credentials_form"):
     search_term = st.text_input("Enter credentials", key="search_term")
-    twofactor = st.text_input("Two Factor", key="twofactor")
+    two_factor = st.text_input("Two Factor", key="twofactor")
     submitted = st.form_submit_button("Submit")
 
-result_div = st.empty()
+    result_div = st.empty()
 
 # Main Processing Function
 def process_request(callno, types=None):
