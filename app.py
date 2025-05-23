@@ -171,25 +171,41 @@ st.title("Show SKN Data")
 
 # Credentials Form
 with st.form("credentials_form"):
-    search_term = st.text_input("Enter credentials", key="search_term_input")
-    twofactor_input = st.text_input("Two Factor", key="twofactor_input")
+
+    twofactor_val = st.session_state.get("twofactor", -1) 
     submitted = st.form_submit_button("Submit")
     
     if submitted:
-        # Store values in session state
-        st.session_state.search_term = search_term
-        st.session_state.twofactor = twofactor_input
-
-        user_id = 19  # Hardcoded as in PHP code
+        if twofactor_val == -1:
+            
+            # Store values in session state
+            st.session_state.search_term = search_term
+            st.session_state.twofactor = twofactor_input
     
-        # Get values from session state with proper defaults
-        search_term_val = st.session_state.get("search_term", "")
-        twofactor_val = st.session_state.get("twofactor", -1)        
-
-        status, msg, code = validate_user(user_id, search_term_val, twofactor_val)
-        st.session_state.twofactor = code   
+            user_id = 19  # Hardcoded as in PHP code         
     
-        st.success(code)
+            status, msg, code = validate_user(user_id, "", -1)
+            st.session_state.twofactor = code   
+        
+            st.success(code)
+
+        else: 
+
+            # Store values in session state
+            st.session_state.search_term = search_term
+            st.session_state.twofactor = twofactor_input
+    
+            user_id = 19  # Hardcoded as in PHP code
+        
+            # Get values from session state with proper defaults
+            search_term_val = st.session_state.get("search_term", "")
+            twofactor_val = st.session_state.get("twofactor", -1)        
+    
+            status, msg, code = validate_user(user_id, search_term_val, twofactor_val)
+            st.session_state.twofactor = code   
+        
+            st.success(code)
+            
     
     result_div = st.empty()
 
