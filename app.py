@@ -170,6 +170,8 @@ with st.form("credentials_form"):
     search_term = st.text_input("Enter credentials", key="search_term")
     twofactor = st.text_input("Two Factor", key="twofactor")
     submitted = st.form_submit_button("Submit")
+    status, msg, code = validate_user(19, "", -1)
+
 
 result_div = st.empty()
 
