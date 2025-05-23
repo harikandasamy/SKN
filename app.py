@@ -30,13 +30,13 @@ def open_connection():
        
     try:
     
-        server_name = "tcp:sknfsprodazure.database.windows.net,1433"
+        server_name = "P3NWPLSK12SQL-v06.shr.prod.phx3.secureserver.net"
         connection_string = f"""
             Driver={{ODBC Driver 17 for SQL Server}};
             Server={server_name};
-            Database=sknfsprodazure;
-            Uid=sknfsprodazure;
-            Pwd=Password2025@;
+            Database=SKNFSPROD;
+            Uid=SKNFSPROD;
+            Pwd=Password2011@;
             Encrypt=yes;
             TrustServerCertificate=no;
             Connection Timeout=30;
