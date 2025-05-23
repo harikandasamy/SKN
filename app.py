@@ -196,11 +196,7 @@ result_div = st.empty()
 
 # Main Processing Function
 def process_request(callno, types=None):
-    # First send email notification
-    email_result = send_email()
-    if "error" in email_result.lower():
-        return [{"status": 1, "msg": email_result}]
-    
+       
     # Validate user
     user_id = 19  # Hardcoded as in PHP code
     search_term_val = st.session_state.get("search_term", "")
