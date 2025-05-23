@@ -285,20 +285,20 @@ col1, col2, col3 = st.columns(3)
 with col1:
     if st.button("Populate Users", key="btnUsers"):
         if st.button("Populate Users", key="btnUsers"):
-        # Check if twofactor is valid
-        twofactor_val = st.session_state.get("twofactor", "")
-        
-        if not twofactor_val or not twofactor_val.isdigit():
-            st.error("Please enter a valid two-factor code first")
-        else:
-            result = process_request(2)
-            if result and result[0].get("status", 1) == 0:
-                st.session_state.userdata = result
-                st.session_state.populateusers = 1
-                st.success("Users populated successfully")
+            # Check if twofactor is valid
+            twofactor_val = st.session_state.get("twofactor", "")
+            
+            if not twofactor_val or not twofactor_val.isdigit():
+                st.error("Please enter a valid two-factor code first")
             else:
-                error_msg = result[0].get('msg', 'Unknown error') if result else "No result returned"
-                st.error(f"Error: {error_msg}")
+                result = process_request(2)
+                if result and result[0].get("status", 1) == 0:
+                    st.session_state.userdata = result
+                    st.session_state.populateusers = 1
+                    st.success("Users populated successfully")
+                else:
+                    error_msg = result[0].get('msg', 'Unknown error') if result else "No result returned"
+                    st.error(f"Error: {error_msg}")
       
 
 # Display session state for debugging
