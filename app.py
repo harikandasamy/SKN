@@ -30,17 +30,22 @@ def open_connection():
        
     try:
     
-        conn = pyodbc.connect(
-            "Driver={ODBC Driver 17 for SQL Server};"
-            f"Server=tcp:{st.secrets['db_server']},1433;"
-            f"Database={st.secrets['db_name']};"
-            f"Uid={st.secrets['db_username']};"
-            f"Pwd={st.secrets['db_password']};"
-            "Encrypt=yes;"
-            "TrustServerCertificate=no;"
-            "Connection Timeout=30;"
-        )        
-        return conn       
+        server_name = "tcp:sknfsprodazure.database.windows.net,1433"
+        connection_string = f"""
+            Driver={{ODBC Driver 17 for SQL Server}};
+            Server={server_name};
+            Database=sknfsprodazure;
+            Uid=sknfsprodazure;
+            Pwd=Password2025@;
+            Encrypt=yes;
+            TrustServerCertificate=no;
+            Connection Timeout=30;
+        """
+        conn = pyodbc.connect(connection_string)
+        return conn
+    except Exception as e:
+        st.error(f"Database connection error: {str(e)}")
+        return None
           
     except Exception as e:
         st.error(f"Database connection error: {str(e)}")
