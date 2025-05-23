@@ -168,7 +168,7 @@ st.title("Show SKN Data")
 # Credentials Form
 with st.form("credentials_form"):
     search_term = st.text_input("Enter credentials", key="search_term")
-    two_factor = st.text_input("Two Factor", key="twofactor")
+    twofactor = st.text_input("Two Factor", key="twofactor")
     submitted = st.form_submit_button("Submit")
 
     result_div = st.empty()
@@ -181,7 +181,7 @@ def process_request(callno, types=None):
     # Validate user
     user_id = 19  # Hardcoded as in PHP code
     search_term_val = st.session_state.get("search_term", "")
-    twofactor_val = st.session_state.get("twofactor", "-1")
+    twofactor_val = st.session_state.get("twofactor", -1)
 
     result_div.success(twofactor_val)
     
