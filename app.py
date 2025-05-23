@@ -171,12 +171,12 @@ st.markdown("""
 st.title("Show SKN Data")
 
 # Credentials Form
-with st.form("credentials_form"):
-    search_term = st.text_input("Enter credentials", key="search_term_input")
+with st.form("credentials_form_1"):
+    search_term = st.text_input("Enter credentials", key="search_term_input_1")
     # Use number_input to ensure numeric input
     twofactor_input = st.number_input(
         "Two Factor Code", 
-        key="twofactor_input",
+        key="twofactor_input_1",
         min_value=0,         # Prevent negative numbers
         max_value=999999,    # Set reasonable upper limit
         step=1,              # Whole numbers only
