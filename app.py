@@ -68,7 +68,8 @@ def validate_user(user_id, username, factor_code):
         result_div.success(user_id)
         # result_div.success(factor_code)
         cursor = conn.cursor()
-        cursor.execute("{CALL P_ValidateWebUser (?, ?, ?)}", (user_id, username, factor_code))      
+        cursor.execute("{CALL P_ValidateWebUser (?, ?, ?)}", (user_id, username, factor_code))   
+        conn.commit()  # Explicit commit
         
         result = cursor.fetchone()
         if result:
