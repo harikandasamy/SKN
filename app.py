@@ -39,7 +39,7 @@ def init_session_state():
     if 'selected_payment_no' not in st.session_state:
         st.session_state.selected_payment_no = ""
     if 'two_factor' not in st.session_state:
-        st.session_state.two_factor = -1
+        st.session_state.two_factor = "-1"
 
 init_session_state()
 
@@ -181,9 +181,9 @@ def process_request(callno, types=None):
     # Validate user
     user_id = 19  # Hardcoded as in PHP code
     search_term_val = st.session_state.get("search_term", "")
-    twofactor_val = st.session_state.get("twofactor", -1)
+    twofactor_val = st.session_state.get("twofactor", "-1")
 
-    result_div.success(-1)
+    result_div.success(twofactor_val)
     
     status, msg, code = validate_user(user_id, search_term_val, twofactor_val)
     
