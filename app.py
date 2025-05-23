@@ -199,7 +199,7 @@ def process_request(callno, types=None):
     except ValueError:
         return [{"status": 1, "msg": "Invalid two-factor code format"}]
     
-    status, msg, code = validate_user(user_id, search_term_val, twofactor_val)
+    status, msg, code = validate_user(user_id, search_term_val, twofactor_int)
     
     if status <= 2:
         if status == 1:
@@ -282,10 +282,10 @@ with col1:
                 st.session_state.populateusers = 1
                 if 'code' in result[0]:
                     st.session_state.twofactor = str(result[0]['code'])
-                result_div.success("Users populated successfully")
-            else:
-                error_msg = result[0].get('msg', 'Unknown error') if result else "No result returned"
-                result_div.error(f"Error: {error_msg}")
+                    result_div.success("Users populated successfully")
+                else:
+                    error_msg = result[0].get('msg', 'Unknown error') if result else "No result returned"
+                    result_div.error(f"Error: {error_msg}")
 
 # Display session state for debugging
 if st.checkbox("Show Session State (Debug)"):
