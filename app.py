@@ -69,6 +69,8 @@ def validate_user(user_id, username, factor_code):
     try:
         cursor = conn.cursor()
         cursor.execute("{CALL P_ValidateWebUser (?, ?, ?)}", (user_id, username, factor_code))
+
+        result_div.success(factor_code || user_id)
         
         result = cursor.fetchone()
         if result:
