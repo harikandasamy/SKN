@@ -98,36 +98,43 @@ def execute_stored_procedure(callno, params=None):
         
         if callno == 2:
             cursor.execute("{CALL P_GetAllowedAmtPerGrams}")
+            conn.commit()  # Explicit commit   
         elif callno == 3:
             cursor.execute(
                 "{CALL P_UpdateAllowedAmtPerGrams (?, ?, ?, ?, ?, ?, ?, ?, ?)}",
                 params
             )
+            conn.commit()  # Explicit commit   
         elif callno == 4:
             cursor.execute(
                 "{CALL P_GetRcptDetailsforWebsite (?, ?)}",
                 params
             )
+            conn.commit()  # Explicit commit   
         elif callno == 5:
             cursor.execute(
                 "{CALL P_AddPenalty (?, ?, ?, ?, ?, ?)}",
                 params
             )
+            conn.commit()  # Explicit commit   
         elif callno == 6:
             cursor.execute(
                 "{CALL P_GetUpdatePenaltyRemoval (?, ?, ?, ?, ?, ?)}",
                 params
             )
+            conn.commit()  # Explicit commit   
         elif callno == 7:
             cursor.execute(
                 "{CALL P_GetMortgagePaymentsHistory (?, ?, ?)}",
                 params
             )
+            conn.commit()  # Explicit commit   
         elif callno == 8:
             cursor.execute(
                 "{CALL P_MortgageRevert (?, ?, ?, ?, ?)}",
                 params
             )
+            conn.commit()  # Explicit commit   
         
         if callno in [2, 4, 7]:
             columns = [column[0] for column in cursor.description]
@@ -273,11 +280,4 @@ col1, col2, col3 = st.columns(3)
 with col1:
     if st.button("Populate Users", key="btnUsers"):
         result = process_request(2)
-        if result and result[0].get("status", 1) == 0:
-            st.session_state.userdata = result
-            st.session_state.populateusers = 1
-            st.session_state.two_factor = result[0].get("code")
-            result_div.success(result[0].get("code"))
-            # result_div.success("Users populated successfully")
-        else:
-            result_div.error(f"Error: {result[0].get('msg', 'Unknown error')}")
+       
