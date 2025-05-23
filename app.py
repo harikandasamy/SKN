@@ -56,9 +56,6 @@ def open_connection():
             f"DATABASE={DATABASE};"
             f"UID={USERNAME};"
             f"PWD={PASSWORD};"
-            "Encrypt=yes;"
-            "TrustServerCertificate=no;"
-            "Connection Timeout=30;"
         )
         return conn
     except Exception as e:
