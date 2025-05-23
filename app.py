@@ -40,7 +40,7 @@ def init_session_state():
         st.session_state.selected_payment_no = ""
     if 'two_factor' not in st.session_state:
         st.session_state.two_factor = -1
-     if 'status' not in st.session_state:
+    if 'status' not in st.session_state:
         st.session_state.status = 0
 
 init_session_state()
