@@ -36,9 +36,7 @@ def open_connection():
             Server={server_name};
             Database=SKNFSPROD;
             Uid=SKNFSPROD;
-            Pwd=Password2011@;
-            Encrypt=yes;
-            TrustServerCertificate=no;
+            Pwd=Password2011@;           
             Connection Timeout=30;
         """
         conn = pyodbc.connect(connection_string)
