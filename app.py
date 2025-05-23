@@ -179,8 +179,8 @@ with st.form("credentials_form"):
         st.session_state.twofactor = twofactor_input
         st.success("Credentials submitted successfully!")
     
-    result_div = st.empty()
-                    result_div.success(twofactor_input)
+        result_div = st.empty()
+        result_div.success(twofactor_input)
 
 # Main Processing Function
 def process_request(callno, types=None):
