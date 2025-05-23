@@ -1,274 +1,77 @@
 import streamlit as st
 import pyodbc
-import smtplib
-from email.mime.text import MIMEText
-from email.mime.multipart import MIMEMultipart
-import json
-from datetime import datetime
-import pytz
-import pandas as pd
 
-# Database Configuration
-SERVER = "P3NWPLSK12SQL-v06.shr.prod.phx3.secureserver.net"
-DATABASE = "SKNFSPROD"
-USERNAME = "SKNFSPROD"
-PASSWORD = "Password2011@"
+def main():
+    st.title("Database Connection App")
+    st.subheader("SQL Server Connection Demo")
 
-# Initialize session state
-def init_session_state():
-    if 'userdata' not in st.session_state:
-        st.session_state.userdata = ""
-    if 'populateusers' not in st.session_state:
-        st.session_state.populateusers = 0
-    if 'updateusers' not in st.session_state:
-        st.session_state.updateusers = 0
-    if 'updateusrname' not in st.session_state:
-        st.session_state.updateusrname = ""
-    if 'recipt' not in st.session_state:
-        st.session_state.recipt = 0
-    if 'receiptrevert' not in st.session_state:
-        st.session_state.receiptrevert = 0
-    if 'paymentdata' not in st.session_state:
-        st.session_state.paymentdata = ""
-    if 'paymentstable' not in st.session_state:
-        st.session_state.paymentstable = 0
-    if 'selected_user' not in st.session_state:
-        st.session_state.selected_user = ""
-    if 'selected_payment' not in st.session_state:
-        st.session_state.selected_payment = ""
-    if 'selected_payment_no' not in st.session_state:
-        st.session_state.selected_payment_no = ""
-    if 'two_factor' not in st.session_state:
-        st.session_state.two_factor = -1
+    # Database configuration
+    SERVER = "P3NWPLSK12SQL-v06.shr.prod.phx3.secureserver.net"
+    DATABASE = "SKNFSPROD"
+    USERNAME = "SKNFSPROD"
+    PASSWORD = "Password2011@"
 
-init_session_state()
+    # Connection function
+    def get_connection():
+        try:
+            conn = pyodbc.connect(
+                f"DRIVER={{ODBC Driver 17 for SQL Server}};"
+                f"SERVER={SERVER};"
+                f"DATABASE={DATABASE};"
+                f"UID={USERNAME};"
+                f"PWD={PASSWORD};"
+            )
+            return conn
+        except Exception as e:
+            st.error(f"Connection failed: {str(e)}")
+            return None
 
-# Database Connection
-def open_connection():
-    try:
-        conn = pyodbc.connect(
-            f"DRIVER={{ODBC Driver 17 for SQL Server}};"
-            f"SERVER={SERVER};"
-            f"DATABASE={DATABASE};"
-            f"UID={USERNAME};"
-            f"PWD={PASSWORD};"
-        )
-        return conn
-    except Exception as e:
-        st.error(f"Database connection failed: {str(e)}")
-        return None
+    # Test connection button
+    if st.button("Test Database Connection"):
+        with st.spinner("Connecting to database..."):
+            conn = get_connection()
+            if conn:
+                st.success("Successfully connected to database!")
+                conn.close()
+            else:
+                st.error("Connection failed")
 
-# User Validation
-def validate_user(user_id, username, factor_code):
-    conn = open_connection()
-    if not conn:
-        return (1, "Database connection error", 0)
-    
-    try:
-        result_div.success(user_id)
-        # result_div.success(factor_code)
-        cursor = conn.cursor()
-        cursor.execute("{CALL P_ValidateWebUser (?, ?, ?)}", (user_id, username, factor_code))
+    # Simple query interface
+    st.markdown("---")
+    st.subheader("Run a Query")
 
-        
-        
-        result = cursor.fetchone()
-        if result:
-            return (result.status, result.msg, result.code)
+    query = st.text_area("Enter your SQL query:", "SELECT TOP 5 * FROM INFORMATION_SCHEMA.TABLES")
+
+    if st.button("Execute Query"):
+        if not query:
+            st.warning("Please enter a query")
         else:
-            return (1, "No data returned from validation", 0)
-    except Exception as e:
-        return (1, f"Validation error: {str(e)}", 0)
-    finally:
-        conn.close()
+            with st.spinner("Executing query..."):
+                conn = get_connection()
+                if conn:
+                    try:
+                        cursor = conn.cursor()
+                        cursor.execute(query)
+                        
+                        # Get column names
+                        columns = [column[0] for column in cursor.description]
+                        
+                        # Get data
+                        data = cursor.fetchall()
+                        
+                        # Display results
+                        if data:
+                            st.write(f"Found {len(data)} rows")
+                            st.table(data)
+                        else:
+                            st.info("Query executed successfully but returned no results")
+                            
+                    except Exception as e:
+                        st.error(f"Query failed: {str(e)}")
+                    finally:
+                        conn.close()
+                else:
+                    st.error("Cannot execute query - no database connection")
 
-# Database Operations
-def execute_stored_procedure(callno, params=None):
-    conn = open_connection()
-    if not conn:
-        return [{"status": 1, "msg": "Database connection failed"}]
-    
-    try:
-        cursor = conn.cursor()
-        
-        if callno == 2:
-            cursor.execute("{CALL P_GetAllowedAmtPerGrams}")
-        elif callno == 3:
-            cursor.execute(
-                "{CALL P_UpdateAllowedAmtPerGrams (?, ?, ?, ?, ?, ?, ?, ?, ?)}",
-                params
-            )
-        elif callno == 4:
-            cursor.execute(
-                "{CALL P_GetRcptDetailsforWebsite (?, ?)}",
-                params
-            )
-        elif callno == 5:
-            cursor.execute(
-                "{CALL P_AddPenalty (?, ?, ?, ?, ?, ?)}",
-                params
-            )
-        elif callno == 6:
-            cursor.execute(
-                "{CALL P_GetUpdatePenaltyRemoval (?, ?, ?, ?, ?, ?)}",
-                params
-            )
-        elif callno == 7:
-            cursor.execute(
-                "{CALL P_GetMortgagePaymentsHistory (?, ?, ?)}",
-                params
-            )
-        elif callno == 8:
-            cursor.execute(
-                "{CALL P_MortgageRevert (?, ?, ?, ?, ?)}",
-                params
-            )
-        
-        if callno in [2, 4, 7]:
-            columns = [column[0] for column in cursor.description]
-            results = []
-            for row in cursor.fetchall():
-                results.append(dict(zip(columns, row)))
-            return results
-        else:
-            return [{"status": 0, "msg": "Operation completed successfully"}]
-            
-    except Exception as e:
-        return [{"status": 1, "msg": f"Database error: {str(e)}"}]
-    finally:
-        conn.close()
-
-# Streamlit UI Setup
-st.set_page_config(
-    page_title="Show SKN Data",
-    layout="wide"
-)
-
-st.markdown("""
-<style>
-.stButton>button {
-    background-color: blue;
-    border: 1px solid blue;
-    color: white;
-    padding: 10px 24px;
-    cursor: pointer;
-    width: 100%;
-    margin: 5px 0;
-}
-.stButton>button:hover {
-    background-color: #3e8e41;
-}
-.stTextInput>div>div>input {
-    padding: 10px;
-}
-.stSelectbox>div>div>select {
-    padding: 10px;
-}
-</style>
-""", unsafe_allow_html=True)
-
-st.title("Show SKN Data")
-
-# Credentials Form
-with st.form("credentials_form"):
-    search_term = st.text_input("Enter credentials", key="search_term")
-    twofactor = st.text_input("Two Factor", key="twofactor")
-    submitted = st.form_submit_button("Submit")
-    status, msg, code = validate_user(19, "", -1)
-
-
-result_div = st.empty()
-
-# Main Processing Function
-def process_request(callno, types=None):
-
-    result_div.success(-1)
-       
-    # Validate user
-    user_id = 19  # Hardcoded as in PHP code
-    search_term_val = st.session_state.get("search_term", "")
-    twofactor_val = st.session_state.get("twofactor", -1)
-    
-    status, msg, code = validate_user(user_id, "webadmin", -1)
-    
-    if status <= 2:
-        if status == 1:
-            return [{"status": status, "msg": code}]
-        else:
-            return [{"status": status, "msg": msg}]
-    
-    # Get current datetime in Eastern time
-    eastern = pytz.timezone('America/New_York')
-    current_dt = datetime.now(eastern).strftime('%Y-%m-%d %H:%M:%S')
-    
-    # Prepare parameters based on callno
-    params = None
-    if callno == 3:
-        params = (
-            st.session_state.get("Amountgramperiod", 0),
-            st.session_state.get("Amountpergram", 0),
-            st.session_state.get("AssessedValue", 0),
-            st.session_state.get("MaxAllowed", 0),
-            st.session_state.get("Three_Mth_Rate", 0),
-            st.session_state.get("Mortgagegram", 0),
-            st.session_state.get("Mortgagemonths", 0),
-            current_dt,
-            st.session_state.get("UserID", 0)
-        )
-    elif callno == 4:
-        params = (
-            st.session_state.get("searchreceipt", ""),
-            user_id
-        )
-    elif callno == 5:
-        params = (
-            types,
-            st.session_state.get("searchreceipt", ""),
-            st.session_state.get("selected_payment_no", ""),
-            user_id,
-            0,  # storeid
-            current_dt
-        )
-    elif callno == 6:
-        params = (
-            user_id,
-            0,  # storeid
-            st.session_state.get("searchreceipt", ""),
-            st.session_state.get("selected_payment_no", ""),
-            current_dt,
-            types
-        )
-    elif callno == 7:
-        params = (
-            user_id,
-            0,  # storeid
-            st.session_state.get("searchreceipt", "")
-        )
-    elif callno == 8:
-        params = (
-            user_id,
-            0,  # storeid
-            st.session_state.get("searchreceipt", ""),
-            current_dt,
-            st.session_state.get("selected_payment", 0)
-        )
-    
-    return execute_stored_procedure(callno, params)
-
-# Users Section
-st.markdown("---")
-st.header("Users Management")
-
-col1, col2, col3 = st.columns(3)
-with col1:
-    if st.button("Populate Users", key="btnUsers"):
-        result = process_request(2)
-        if result and result[0].get("status", 1) == 0:
-            st.session_state.userdata = result
-            st.session_state.populateusers = 1
-            st.session_state.two_factor = result[0].get("code")
-            result_div.success(result[0].get("code"))
-            # result_div.success("Users populated successfully")
-        else:
-            result_div.error(f"Error: {result[0].get('msg', 'Unknown error')}")
-
+if __name__ == "__main__":
+    main()
