@@ -1,12 +1,8 @@
 import streamlit as st
 import pyodbc
-import smtplib
-from email.mime.text import MIMEText
-from email.mime.multipart import MIMEMultipart
-import json
 from datetime import datetime
 import pytz
-import pandas as pd
+import uuid
 
 # Database Configuration
 SERVER = "P3NWPLSK12SQL-v06.shr.prod.phx3.secureserver.net"
@@ -14,34 +10,29 @@ DATABASE = "SKNFSPROD"
 USERNAME = "SKNFSPROD"
 PASSWORD = "Password2011@"
 
-# Initialize session state
+# Initialize session state with unique keys
 def init_session_state():
-    if 'userdata' not in st.session_state:
-        st.session_state.userdata = ""
-    if 'populateusers' not in st.session_state:
-        st.session_state.populateusers = 0
-    if 'updateusers' not in st.session_state:
-        st.session_state.updateusers = 0
-    if 'updateusrname' not in st.session_state:
-        st.session_state.updateusrname = ""
-    if 'recipt' not in st.session_state:
-        st.session_state.recipt = 0
-    if 'receiptrevert' not in st.session_state:
-        st.session_state.receiptrevert = 0
-    if 'paymentdata' not in st.session_state:
-        st.session_state.paymentdata = ""
-    if 'paymentstable' not in st.session_state:
-        st.session_state.paymentstable = 0
-    if 'selected_user' not in st.session_state:
-        st.session_state.selected_user = ""
-    if 'selected_payment' not in st.session_state:
-        st.session_state.selected_payment = ""
-    if 'selected_payment_no' not in st.session_state:
-        st.session_state.selected_payment_no = ""
-    if 'twofactor' not in st.session_state:
-        st.session_state.twofactor = "-1"  # Initialize as string
-    if 'search_term' not in st.session_state:
-        st.session_state.search_term = ""
+    session_keys = {
+        'userdata': "",
+        'populateusers': 0,
+        'updateusers': 0,
+        'updateusrname': "",
+        'recipt': 0,
+        'receiptrevert': 0,
+        'paymentdata': "",
+        'paymentstable': 0,
+        'selected_user': "",
+        'selected_payment': "",
+        'selected_payment_no': "",
+        'twofactor': "-1",
+        'search_term': "",
+        'form_submitted': False,
+        'debug_mode': False
+    }
+    
+    for key, default in session_keys.items():
+        if key not in st.session_state:
+            st.session_state[key] = default
 
 init_session_state()
 
@@ -69,12 +60,8 @@ def validate_user(user_id, username, factor_code):
     try:
         cursor = conn.cursor()
         cursor.execute("{CALL P_ValidateWebUser (?, ?, ?)}", (user_id, username, factor_code))
-        
         result = cursor.fetchone()
-        if result:
-            return (result.status, result.msg, result.code)
-        else:
-            return (1, "No data returned from validation", 0)
+        return (result.status, result.msg, result.code) if result else (1, "No data returned", 0)
     except Exception as e:
         return (1, f"Validation error: {str(e)}", 0)
     finally:
@@ -92,141 +79,46 @@ def execute_stored_procedure(callno, params=None):
         if callno == 2:
             cursor.execute("{CALL P_GetAllowedAmtPerGrams}")
         elif callno == 3:
-            cursor.execute(
-                "{CALL P_UpdateAllowedAmtPerGrams (?, ?, ?, ?, ?, ?, ?, ?, ?)}",
-                params
-            )
+            cursor.execute("{CALL P_UpdateAllowedAmtPerGrams (?, ?, ?, ?, ?, ?, ?, ?, ?)}", params)
         elif callno == 4:
-            cursor.execute(
-                "{CALL P_GetRcptDetailsforWebsite (?, ?)}",
-                params
-            )
+            cursor.execute("{CALL P_GetRcptDetailsforWebsite (?, ?)}", params)
         elif callno == 5:
-            cursor.execute(
-                "{CALL P_AddPenalty (?, ?, ?, ?, ?, ?)}",
-                params
-            )
+            cursor.execute("{CALL P_AddPenalty (?, ?, ?, ?, ?, ?)}", params)
         elif callno == 6:
-            cursor.execute(
-                "{CALL P_GetUpdatePenaltyRemoval (?, ?, ?, ?, ?, ?)}",
-                params
-            )
+            cursor.execute("{CALL P_GetUpdatePenaltyRemoval (?, ?, ?, ?, ?, ?)}", params)
         elif callno == 7:
-            cursor.execute(
-                "{CALL P_GetMortgagePaymentsHistory (?, ?, ?)}",
-                params
-            )
+            cursor.execute("{CALL P_GetMortgagePaymentsHistory (?, ?, ?)}", params)
         elif callno == 8:
-            cursor.execute(
-                "{CALL P_MortgageRevert (?, ?, ?, ?, ?)}",
-                params
-            )
+            cursor.execute("{CALL P_MortgageRevert (?, ?, ?, ?, ?)}", params)
         
         if callno in [2, 4, 7]:
             columns = [column[0] for column in cursor.description]
-            results = []
-            for row in cursor.fetchall():
-                results.append(dict(zip(columns, row)))
-            return results
+            return [dict(zip(columns, row)) for row in cursor.fetchall()]
         else:
             return [{"status": 0, "msg": "Operation completed successfully"}]
-            
     except Exception as e:
         return [{"status": 1, "msg": f"Database error: {str(e)}"}]
     finally:
         conn.close()
 
-# Streamlit UI Setup
-st.set_page_config(
-    page_title="Show SKN Data",
-    layout="wide"
-)
-
-# Initialize result_div at the top level
-result_div = st.empty()
-
-st.markdown("""
-<style>
-.stButton>button {
-    background-color: blue;
-    border: 1px solid blue;
-    color: white;
-    padding: 10px 24px;
-    cursor: pointer;
-    width: 100%;
-    margin: 5px 0;
-}
-.stButton>button:hover {
-    background-color: #3e8e41;
-}
-.stTextInput>div>div>input {
-    padding: 10px;
-}
-.stSelectbox>div>div>select {
-    padding: 10px;
-}
-</style>
-""", unsafe_allow_html=True)
-
-st.title("Show SKN Data")
-
-# Credentials Form
-with st.form("credentials_form_1"):
-    search_term = st.text_input("Enter credentials", key="search_term_input_1")
-    # Use number_input to ensure numeric input
-    twofactor_input = st.number_input(
-        "Two Factor Code", 
-        key="twofactor_input_1",
-        min_value=0,         # Prevent negative numbers
-        max_value=999999,    # Set reasonable upper limit
-        step=1,              # Whole numbers only
-        format="%d"          # Display as integer
-    )
-    submitted = st.form_submit_button("Submit")
-    
-    if submitted:
-        # Store values in session state
-        st.session_state.search_term = search_term
-        st.session_state.twofactor = twofactor_input
-        st.success("Credentials submitted successfully!")
-    
-        result_div = st.empty()
-        result_div.success(twofactor_input)
-
 # Main Processing Function
 def process_request(callno, types=None):
-    # Validate user
-    user_id = 19  # Hardcoded as in PHP code
+    user_id = 19
+    search_term_val = st.session_state.search_term
+    twofactor_val = st.session_state.twofactor
+
+    if not twofactor_val or twofactor_val == "-1":
+        return [{"status": 1, "msg": "Two-factor code is required"}]
     
-    # Get values from session state with proper defaults
-    search_term_val = st.session_state.get("search_term", "")
-    twofactor_val = st.session_state.get("twofactor", "-1")
-    
-    # Debug output
-    st.write(f"Current twofactor value: {twofactor_val} (Type: {type(twofactor_val)})")
-    
-    # Validate twofactor format
-    try:
-        twofactor_int = int(twofactor_val)
-    except ValueError:
-        return [{"status": 1, "msg": "Invalid two-factor code format"}]
-    
-    status, msg, code = validate_user(user_id, search_term_val, twofactor_int)
-    
+    status, msg, code = validate_user(user_id, search_term_val, twofactor_val)
     if status <= 2:
-        if status == 1:
-            return [{"status": status, "msg": code}]
-        else:
-            return [{"status": status, "msg": msg}]
+        return [{"status": status, "msg": msg}]
     
-    # Get current datetime in Eastern time
     eastern = pytz.timezone('America/New_York')
     current_dt = datetime.now(eastern).strftime('%Y-%m-%d %H:%M:%S')
     
-    # Prepare parameters based on callno
-    params = None
-    if callno == 3:
-        params = (
+    params_map = {
+        3: (
             st.session_state.get("Amountgramperiod", 0),
             st.session_state.get("Amountpergram", 0),
             st.session_state.get("AssessedValue", 0),
@@ -236,60 +128,54 @@ def process_request(callno, types=None):
             st.session_state.get("Mortgagemonths", 0),
             current_dt,
             st.session_state.get("UserID", 0)
-        )
-    elif callno == 4:
-        params = (
-            st.session_state.get("searchreceipt", ""),
-            user_id
-        )
-    elif callno == 5:
-        params = (
-            types,
-            st.session_state.get("searchreceipt", ""),
-            st.session_state.get("selected_payment_no", ""),
-            user_id,
-            0,  # storeid
-            current_dt
-        )
-    elif callno == 6:
-        params = (
-            user_id,
-            0,  # storeid
-            st.session_state.get("searchreceipt", ""),
-            st.session_state.get("selected_payment_no", ""),
-            current_dt,
-            types
-        )
-    elif callno == 7:
-        params = (
-            user_id,
-            0,  # storeid
-            st.session_state.get("searchreceipt", "")
-        )
-    elif callno == 8:
-        params = (
-            user_id,
-            0,  # storeid
-            st.session_state.get("searchreceipt", ""),
-            current_dt,
-            st.session_state.get("selected_payment", 0)
-        )
+        ),
+        4: (st.session_state.get("searchreceipt", ""), user_id),
+        5: (types, st.session_state.get("searchreceipt", ""), 
+            st.session_state.get("selected_payment_no", ""), user_id, 0, current_dt),
+        6: (user_id, 0, st.session_state.get("searchreceipt", ""),
+            st.session_state.get("selected_payment_no", ""), current_dt, types),
+        7: (user_id, 0, st.session_state.get("searchreceipt", "")),
+        8: (user_id, 0, st.session_state.get("searchreceipt", ""), current_dt,
+            st.session_state.get("selected_payment", 0))
+    }
     
-    return execute_stored_procedure(callno, params)
+    return execute_stored_procedure(callno, params_map.get(callno))
 
-# Users Section
-st.markdown("---")
-st.header("Users Management")
+# Streamlit UI Setup
+st.set_page_config(page_title="Show SKN Data", layout="wide")
 
-col1, col2, col3 = st.columns(3)
-with col1:
-    if st.button("Populate Users", key="btnUsers"):
-        if st.button("Populate Users", key="btnUsers"):
-            # Check if twofactor is valid
-            twofactor_val = st.session_state.get("twofactor", "")
-            
-            if not twofactor_val or not twofactor_val.isdigit():
-                st.error("Please enter a valid two-factor code first")
+# Main container
+main_container = st.container()
+with main_container:
+    st.title("Show SKN Data")
+    
+    # Credentials Form
+    with st.form(key=f"cred_form_{uuid.uuid4()}"):
+        st.text_input("Enter credentials", key=f"cred_input_{uuid.uuid4()}")
+        twofactor = st.number_input(
+            "Two Factor Code",
+            key=f"twofactor_{uuid.uuid4()}",
+            min_value=0,
+            step=1,
+            format="%d"
+        )
+        submit = st.form_submit_button("Submit", key=f"submit_{uuid.uuid4()}")
+        
+        if submit:
+            st.session_state.search_term = st.session_state[f"cred_input_{list(st.session_state.keys())[-3]}"]
+            st.session_state.twofactor = str(twofactor)
+            st.session_state.form_submitted = True
+            st.success("Credentials submitted!")
+
+    # Users Management
+    st.markdown("---")
+    st.header("Users Management")
+
+    cols = st.columns(3)
+    with cols[0]:
+        if st.button("Populate Users", key=f"populate_{uuid.uuid4()}"):
+            if not st.session_state.form_submitted:
+                st.error("Please submit credentials first")
             else:
                 result = process_request(2)
                 if result and result[0].get("status", 1) == 0:
@@ -299,8 +185,10 @@ with col1:
                 else:
                     error_msg = result[0].get('msg', 'Unknown error') if result else "No result returned"
                     st.error(f"Error: {error_msg}")
-      
 
-# Display session state for debugging
-if st.checkbox("Show Session State (Debug)"):
-    st.write(st.session_state)
+    # Debug Section
+    st.sidebar.checkbox("Debug Mode", key="debug_mode")
+    if st.session_state.debug_mode:
+        with st.expander("Debug Information"):
+            st.write("Session State:", st.session_state)
+            st.write("Database Connection:", "Active" if open_connection() else "Inactive")
