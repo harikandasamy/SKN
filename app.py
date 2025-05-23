@@ -173,7 +173,15 @@ st.title("Show SKN Data")
 # Credentials Form
 with st.form("credentials_form"):
     search_term = st.text_input("Enter credentials", key="search_term_input")
-    twofactor_input = st.text_input("Two Factor", key="twofactor_input")
+    # Use number_input to ensure numeric input
+    twofactor_input = st.number_input(
+        "Two Factor Code", 
+        key="twofactor_input",
+        min_value=0,         # Prevent negative numbers
+        max_value=999999,    # Set reasonable upper limit
+        step=1,              # Whole numbers only
+        format="%d"          # Display as integer
+    )
     submitted = st.form_submit_button("Submit")
     
     if submitted:
@@ -276,20 +284,22 @@ st.header("Users Management")
 col1, col2, col3 = st.columns(3)
 with col1:
     if st.button("Populate Users", key="btnUsers"):
-        # Verify credentials were submitted first
-        if st.session_state.get("twofactor", "-1") == "-1":
-            result_div.error("Please submit your credentials first")
+        if st.button("Populate Users", key="btnUsers"):
+        # Check if twofactor is valid
+        twofactor_val = st.session_state.get("twofactor", "")
+        
+        if not twofactor_val or not twofactor_val.isdigit():
+            st.error("Please enter a valid two-factor code first")
         else:
             result = process_request(2)
             if result and result[0].get("status", 1) == 0:
                 st.session_state.userdata = result
                 st.session_state.populateusers = 1
-                if 'code' in result[0]:
-                    st.session_state.twofactor = str(result[0]['code'])
-                result_div.success("Users populated successfully")
+                st.success("Users populated successfully")
             else:
                 error_msg = result[0].get('msg', 'Unknown error') if result else "No result returned"
-                result_div.error(f"Error: {error_msg}")
+                st.error(f"Error: {error_msg}")
+      
 
 # Display session state for debugging
 if st.checkbox("Show Session State (Debug)"):
