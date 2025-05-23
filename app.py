@@ -38,6 +38,8 @@ def init_session_state():
         st.session_state.selected_payment = None
     if 'selected_payment_no' not in st.session_state:
         st.session_state.selected_payment_no = None
+    if 'two_factor' not in st.session_state:
+        st.session_state.two_factor = -1
 
 init_session_state()
 
@@ -257,7 +259,7 @@ with col1:
             st.session_state.userdata = result
             st.session_state.populateusers = 1
             st.session_state.two_factor = result[0].get("code")
-            if st.session_state.two_factor == -1
+            if st.session_state.two_factor = -1:
                 result_div.success(result[0].get("code"))
             else:
                 result_div.success("Users populated successfully")
