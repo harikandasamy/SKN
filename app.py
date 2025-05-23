@@ -142,6 +142,9 @@ st.set_page_config(
     layout="wide"
 )
 
+# Initialize result_div at the top level
+result_div = st.empty()
+
 st.markdown("""
 <style>
 .stButton>button {
