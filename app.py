@@ -39,7 +39,7 @@ def init_session_state():
     if 'selected_payment_no' not in st.session_state:
         st.session_state.selected_payment_no = ""
     if 'twofactor' not in st.session_state:
-        st.session_state.twofactor = "-1"  # Initialize as string
+        st.session_state.twofactor = -1 
     if 'search_term' not in st.session_state:
         st.session_state.search_term = ""
 
@@ -184,10 +184,9 @@ with st.form("credentials_form"):
     
         # Get values from session state with proper defaults
         search_term_val = st.session_state.get("search_term", "")
-        twofactor_val = st.session_state.get("twofactor", "-1")
-        twofactor_int = int(twofactor_val)
+        twofactor_val = st.session_state.get("twofactor", -1)        
 
-        status, msg, code = validate_user(user_id, search_term_val, twofactor_int)
+        status, msg, code = validate_user(user_id, search_term_val, twofactor_val)
         st.session_state.twofactor = code   
     
         st.success(code)
