@@ -17,7 +17,7 @@ st.set_page_config(page_title="SKN Data Management", layout="wide")
 if 'authenticated' not in st.session_state:
     st.session_state.authenticated = False
 if 'two_factor' not in st.session_state:
-    st.session_state.two_factor = ""
+    st.session_state.two_factor = -1
 if 'user_data' not in st.session_state:
     st.session_state.user_data = None
 if 'payment_data' not in st.session_state:
@@ -26,8 +26,6 @@ if 'payment_data' not in st.session_state:
 # Database connection function
 def open_connection():
    
-       
-       
     try:
     
         server_name = "P3NWPLSK12SQL-v06.shr.prod.phx3.secureserver.net"
