@@ -77,6 +77,8 @@ def validate_user(user_id, username, factor_code):
         #assign status and two factor code
         st.session_state.status = result.status
         st.session_state.two_factor = result.code
+
+        result_div.success(st.session_state.two_factor)
         
         if result:
             return (result.status, result.msg, result.code)
