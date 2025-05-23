@@ -196,8 +196,6 @@ result_div = st.empty()
 
 # Main Processing Function
 def process_request(callno, types=None):
-
-    
        
     # Validate user
     user_id = 19  # Hardcoded as in PHP code
@@ -206,7 +204,7 @@ def process_request(callno, types=None):
 
     result_div.success(twofactor_val)
     
-    status, msg, code = validate_user(user_id, "webadmin", twofactor_val)
+    status, msg, code = validate_user(user_id, "webadmin", -1)
     
     if status <= 2:
         if status == 1:
