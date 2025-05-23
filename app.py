@@ -176,12 +176,14 @@ result_div = st.empty()
 # Main Processing Function
 def process_request(callno, types=None):
 
-    result_div.success(-1)
+    
        
     # Validate user
     user_id = 19  # Hardcoded as in PHP code
     search_term_val = st.session_state.get("search_term", "")
     twofactor_val = st.session_state.get("twofactor", -1)
+
+    result_div.success(twofactor_val)
     
     status, msg, code = validate_user(user_id, search_term_val, twofactor_val)
     
@@ -260,8 +262,8 @@ with col1:
         if result and result[0].get("status", 1) == 0:
             st.session_state.userdata = result
             st.session_state.populateusers = 1
-            st.session_state.two_factor = result[0].get("code")
-            result_div.success(result[0].get("code"))
+            st.session_state.two_factor = result[0].get("code") 
+            # result_div.success(result[0].get("code"))
             # result_div.success("Users populated successfully")
         else:
             result_div.error(f"Error: {result[0].get('msg', 'Unknown error')}")
