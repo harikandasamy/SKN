@@ -65,10 +65,12 @@ def validate_user(user_id, username, factor_code):
         return (1, "Database connection error", 0)
     
     try:
+        result_div.success(user_id)
+        result_div.success(factor_code)
         cursor = conn.cursor()
         cursor.execute("{CALL P_ValidateWebUser (?, ?, ?)}", (user_id, username, factor_code))
 
-        result_div.success("Baba black sheep")
+        
         
         result = cursor.fetchone()
         if result:
