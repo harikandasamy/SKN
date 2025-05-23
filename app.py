@@ -180,6 +180,7 @@ with st.form("credentials_form"):
         st.success("Credentials submitted successfully!")
     
     result_div = st.empty()
+                    result_div.success(twofactor_input)
 
 # Main Processing Function
 def process_request(callno, types=None):
