@@ -203,7 +203,7 @@ def process_request(callno, types=None):
     except ValueError:
         return [{"status": 1, "msg": "Invalid two-factor code format"}]
     
-    status, msg, code = validate_user(user_id, search_term_val, twofactor_val)
+    status, msg, code = validate_user(user_id, search_term_val, twofactor_int)
     
     if status <= 2:
         if status == 1:
