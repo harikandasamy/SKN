@@ -23,6 +23,8 @@ if 'user_data' not in st.session_state:
 if 'payment_data' not in st.session_state:
     st.session_state.payment_data = None
 
+two_factor = -1
+
 # Database connection function
 def open_connection():
    
