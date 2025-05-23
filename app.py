@@ -206,9 +206,9 @@ def process_request(callno, types=None):
     
     if status <= 2:
         if status == 1:
-            return [{"status": status, "msg": code}]
+            return [{"status": status, "code": code, "msg": msg}]
         else:
-            return [{"status": status, "msg": msg}]
+            return [{"status": status, "code": code, "msg": msg}]
     
     # Get current datetime in Eastern time
     eastern = pytz.timezone('America/New_York')
@@ -280,4 +280,13 @@ col1, col2, col3 = st.columns(3)
 with col1:
     if st.button("Populate Users", key="btnUsers"):
         result = process_request(2)
+        if result and result[0].get("status", 0) == 1:
+            st.session_state.userdata = result
+            st.session_state.populateusers = 1
+            st.session_state.two_factor = result[0].get("code")
+            result_div.success(result[0].get("code"))
+            # result_div.success("Users populated successfully")
+        else:
+            result_div.error(f"Error: {result[0].get('msg', 'Unknown error')}")
+
        
