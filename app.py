@@ -17,7 +17,7 @@ PASSWORD = "Password2011@"
 # Initialize session state
 def init_session_state():
     if 'userdata' not in st.session_state:
-        st.session_state.userdata = None
+        st.session_state.userdata = ""
     if 'populateusers' not in st.session_state:
         st.session_state.populateusers = 0
     if 'updateusers' not in st.session_state:
@@ -29,15 +29,15 @@ def init_session_state():
     if 'receiptrevert' not in st.session_state:
         st.session_state.receiptrevert = 0
     if 'paymentdata' not in st.session_state:
-        st.session_state.paymentdata = None
+        st.session_state.paymentdata = ""
     if 'paymentstable' not in st.session_state:
         st.session_state.paymentstable = 0
     if 'selected_user' not in st.session_state:
-        st.session_state.selected_user = None
+        st.session_state.selected_user = ""
     if 'selected_payment' not in st.session_state:
-        st.session_state.selected_payment = None
+        st.session_state.selected_payment = ""
     if 'selected_payment_no' not in st.session_state:
-        st.session_state.selected_payment_no = None
+        st.session_state.selected_payment_no = ""
     if 'two_factor' not in st.session_state:
         st.session_state.two_factor = -1
 
