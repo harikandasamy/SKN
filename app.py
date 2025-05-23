@@ -77,6 +77,7 @@ def validate_user(user_id, username, factor_code):
             return (1, "No data returned from validation", 0)
     except Exception as e:
         return (1, f"Validation error: {str(e)}", 0)
+        result_div.success("Why am I here?")
     finally:
         conn.close()
 
