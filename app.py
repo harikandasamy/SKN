@@ -179,7 +179,7 @@ with st.form("credentials_form"):
         # Store values in session state
         st.session_state.search_term = search_term
         st.session_state.twofactor = twofactor_input
-        st.success("Credentials submitted successfully!")
+        #st.success("Credentials submitted successfully!")
     
     result_div = st.empty()
 
