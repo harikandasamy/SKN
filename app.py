@@ -14,12 +14,6 @@ DATABASE = "SKNFSPROD"
 USERNAME = "SKNFSPROD"
 PASSWORD = "Password2011@"
 
-# Email Configuration
-EMAIL_HOST = 'p3nwvpweb1002.shr.prod.phx3.secureserver.net'
-EMAIL_USERNAME = 'database@sknfinancial.com'
-EMAIL_PASSWORD = 'sknskn'
-EMAIL_PORT = 587
-
 # Initialize session state
 def init_session_state():
     if 'userdata' not in st.session_state:
@@ -61,23 +55,6 @@ def open_connection():
     except Exception as e:
         st.error(f"Database connection failed: {str(e)}")
         return None
-
-# Email Function
-def send_email():
-    try:
-        msg = MIMEMultipart()
-        msg['From'] = EMAIL_USERNAME
-        msg['Subject'] = "Enquiry for tour and travels package"
-        msg['Cc'] = EMAIL_USERNAME
-        
-        with smtplib.SMTP(EMAIL_HOST, EMAIL_PORT) as server:
-            server.starttls()
-            server.login(EMAIL_USERNAME, EMAIL_PASSWORD)
-            server.send_message(msg)
-        
-        return "Message sent!"
-    except Exception as e:
-        return f"Error sending email: {str(e)}"
 
 # User Validation
 def validate_user(user_id, username, factor_code):
