@@ -284,7 +284,7 @@ with col1:
             st.session_state.userdata = result
             st.session_state.populateusers = 1
             st.session_state.two_factor = result[0].get("code")
-            result_div.success(result[0].get("code"))
+            result_div.success(st.session_state.two_factor)
             # result_div.success("Users populated successfully")
         else:
             result_div.error(f"Error: {result[0].get('msg', 'Unknown error')}")
