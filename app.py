@@ -256,6 +256,7 @@ with col1:
         if result and result[0].get("status", 1) == 0:
             st.session_state.userdata = result
             st.session_state.populateusers = 1
+            st.session_state.two_factor = result[2]
             result_div.success("Users populated successfully")
         else:
             result_div.error(f"Error: {result[0].get('msg', 'Unknown error')}")
