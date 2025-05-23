@@ -175,6 +175,8 @@ result_div = st.empty()
 
 # Main Processing Function
 def process_request(callno, types=None):
+
+    result_div.success(-1)
        
     # Validate user
     user_id = 19  # Hardcoded as in PHP code
