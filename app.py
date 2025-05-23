@@ -179,7 +179,18 @@ with st.form("credentials_form"):
         # Store values in session state
         st.session_state.search_term = search_term
         st.session_state.twofactor = twofactor_input
-        #st.success("Credentials submitted successfully!")
+
+        user_id = 19  # Hardcoded as in PHP code
+    
+        # Get values from session state with proper defaults
+        search_term_val = st.session_state.get("search_term", "")
+        twofactor_val = st.session_state.get("twofactor", "-1")
+        twofactor_int = int(twofactor_val)
+
+        status, msg, code = validate_user(user_id, search_term_val, twofactor_int)
+        st.session_state.twofactor = code   
+    
+        st.success(code)
     
     result_div = st.empty()
 
