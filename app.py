@@ -179,7 +179,7 @@ def process_request(callno, types=None):
     # Validate user
     user_id = 19  # Hardcoded as in PHP code
     search_term_val = st.session_state.get("search_term", "")
-    twofactor_val = st.session_state.get("twofactor", -1)
+    twofactor_val = st.session_state.twofactor = -1 #st.session_state.get("twofactor", -1)
     
     status, msg, code = validate_user(user_id, search_term_val, twofactor_val)
     
