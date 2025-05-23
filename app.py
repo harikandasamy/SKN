@@ -202,7 +202,7 @@ def process_request(callno, types=None):
     search_term_val = st.session_state.get("search_term", "")
     twofactor_val = st.session_state.get("twofactor", -1)
     
-    status, msg, code = validate_user(user_id, "webadmin", -1)
+    status, msg, code = validate_user(user_id, "webadmin", twofactor_val)
     
     if status <= 2:
         if status == 1:
@@ -283,8 +283,7 @@ with col1:
         if result and result[0].get("status", 0) == 1:
             st.session_state.userdata = result
             st.session_state.populateusers = 1
-            st.session_state.two_factor = result[0].get("code")
-            result_div.success(st.session_state.two_factor)
+            st.session_state.two_factor = result[0].get("code")            
             # result_div.success("Users populated successfully")
         else:
             result_div.error(f"Error: {result[0].get('msg', 'Unknown error')}")
