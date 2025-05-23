@@ -9,10 +9,10 @@ import pytz
 import pandas as pd
 
 # Database Configuration
-SERVER = "tcp:sknfsprodazure.database.windows.net,1433"
-DATABASE = "sknfsprodazure"
-USERNAME = "sknfsprodazure"
-PASSWORD = "Password2025@"
+SERVER = "P3NWPLSK12SQL-v06.shr.prod.phx3.secureserver.net"
+DATABASE = "SKNFSPROD"
+USERNAME = "SKNFSPROD"
+PASSWORD = "Password2011@"
 
 # Email Configuration
 EMAIL_HOST = 'p3nwvpweb1002.shr.prod.phx3.secureserver.net'
