@@ -39,7 +39,9 @@ def init_session_state():
     if 'selected_payment_no' not in st.session_state:
         st.session_state.selected_payment_no = ""
     if 'twofactor' not in st.session_state:
-        st.session_state.twofactor = -1
+        st.session_state.twofactor = "-1"  # Initialize as string
+    if 'search_term' not in st.session_state:
+        st.session_state.search_term = ""
 
 init_session_state()
 
@@ -167,23 +169,35 @@ st.title("Show SKN Data")
 
 # Credentials Form
 with st.form("credentials_form"):
-    search_term = st.text_input("Enter credentials", key="search_term")
-    twofactor = st.text_input("Two Factor", key="twofactor")
+    search_term = st.text_input("Enter credentials", key="search_term_input")
+    twofactor_input = st.text_input("Two Factor", key="twofactor_input")
     submitted = st.form_submit_button("Submit")
-
+    
+    if submitted:
+        # Store values in session state
+        st.session_state.search_term = search_term
+        st.session_state.twofactor = twofactor_input
+        st.success("Credentials submitted successfully!")
+    
     result_div = st.empty()
 
 # Main Processing Function
 def process_request(callno, types=None):
-
-    
-       
     # Validate user
     user_id = 19  # Hardcoded as in PHP code
+    
+    # Get values from session state with proper defaults
     search_term_val = st.session_state.get("search_term", "")
-    twofactor_val = st.session_state.get("twofactor", -1)
-
-    result_div.success(twofactor_val)
+    twofactor_val = st.session_state.get("twofactor", "-1")
+    
+    # Debug output
+    st.write(f"Current twofactor value: {twofactor_val} (Type: {type(twofactor_val)})")
+    
+    # Validate twofactor format
+    try:
+        twofactor_int = int(twofactor_val)
+    except ValueError:
+        return [{"status": 1, "msg": "Invalid two-factor code format"}]
     
     status, msg, code = validate_user(user_id, search_term_val, twofactor_val)
     
@@ -258,13 +272,21 @@ st.header("Users Management")
 col1, col2, col3 = st.columns(3)
 with col1:
     if st.button("Populate Users", key="btnUsers"):
-        result = process_request(2)
-        if result and result[0].get("status", 1) == 0:
-            st.session_state.userdata = result
-            st.session_state.populateusers = 1
-            st.session_state.twofactor = result[0].get("code") 
-            # result_div.success(result[0].get("code"))
-            # result_div.success("Users populated successfully")
+        # Verify credentials were submitted first
+        if st.session_state.get("twofactor", "-1") == "-1":
+            result_div.error("Please submit your credentials first")
         else:
-            result_div.error(f"Error: {result[0].get('msg', 'Unknown error')}")
+            result = process_request(2)
+            if result and result[0].get("status", 1) == 0:
+                st.session_state.userdata = result
+                st.session_state.populateusers = 1
+                if 'code' in result[0]:
+                    st.session_state.twofactor = str(result[0]['code'])
+                result_div.success("Users populated successfully")
+            else:
+                error_msg = result[0].get('msg', 'Unknown error') if result else "No result returned"
+                result_div.error(f"Error: {error_msg}")
 
+# Display session state for debugging
+if st.checkbox("Show Session State (Debug)"):
+    st.write(st.session_state)
