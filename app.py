@@ -166,7 +166,7 @@ st.markdown("""
 </style>
 """, unsafe_allow_html=True)
 
-st.title("Show SKN Data"")
+st.title("Show SKN Data")
 
 # Credentials Form
 with st.form("credentials_form"):
