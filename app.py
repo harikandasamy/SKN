@@ -40,6 +40,8 @@ def init_session_state():
         st.session_state.selected_payment_no = ""
     if 'two_factor' not in st.session_state:
         st.session_state.two_factor = -1
+     if 'status' not in st.session_state:
+        st.session_state.status = 0
 
 init_session_state()
 
@@ -69,9 +71,13 @@ def validate_user(user_id, username, factor_code):
         # result_div.success(factor_code)
         cursor = conn.cursor()
         cursor.execute("{CALL P_ValidateWebUser (?, ?, ?)}", (user_id, username, factor_code))   
-        conn.commit()  # Explicit commit
-        
+        conn.commit()  # Explicit commit        
         result = cursor.fetchone()
+
+        #assign status and two factor code
+        st.session_state.status = result.status
+        st.session_state.two_factor = result.code
+        
         if result:
             return (result.status, result.msg, result.code)
         else:
@@ -86,8 +92,7 @@ def validate_user(user_id, username, factor_code):
 def execute_stored_procedure(callno, params=None):
     conn = open_connection()
     if not conn:
-        return [{"status": 1, "msg": "Database connection failed"}]
-    
+        return [{"status": 1, "msg": "Database connection failed"}]    
     try:
         cursor = conn.cursor()
         
@@ -201,60 +206,64 @@ def process_request(callno, types=None):
     # Get current datetime in Eastern time
     eastern = pytz.timezone('America/New_York')
     current_dt = datetime.now(eastern).strftime('%Y-%m-%d %H:%M:%S')
+
+    #allow calling only if status code >= 3
+
+    if  st.session_state.status >= 3:
     
-    # Prepare parameters based on callno
-    params = None
-    if callno == 3:
-        params = (
-            st.session_state.get("Amountgramperiod", 0),
-            st.session_state.get("Amountpergram", 0),
-            st.session_state.get("AssessedValue", 0),
-            st.session_state.get("MaxAllowed", 0),
-            st.session_state.get("Three_Mth_Rate", 0),
-            st.session_state.get("Mortgagegram", 0),
-            st.session_state.get("Mortgagemonths", 0),
-            current_dt,
-            st.session_state.get("UserID", 0)
-        )
-    elif callno == 4:
-        params = (
-            st.session_state.get("searchreceipt", ""),
-            user_id
-        )
-    elif callno == 5:
-        params = (
-            types,
-            st.session_state.get("searchreceipt", ""),
-            st.session_state.get("selected_payment_no", ""),
-            user_id,
-            0,  # storeid
-            current_dt
-        )
-    elif callno == 6:
-        params = (
-            user_id,
-            0,  # storeid
-            st.session_state.get("searchreceipt", ""),
-            st.session_state.get("selected_payment_no", ""),
-            current_dt,
-            types
-        )
-    elif callno == 7:
-        params = (
-            user_id,
-            0,  # storeid
-            st.session_state.get("searchreceipt", "")
-        )
-    elif callno == 8:
-        params = (
-            user_id,
-            0,  # storeid
-            st.session_state.get("searchreceipt", ""),
-            current_dt,
-            st.session_state.get("selected_payment", 0)
-        )
-    
-    return execute_stored_procedure(callno, params)
+        # Prepare parameters based on callno
+        params = None
+        if callno == 3:
+            params = (
+                st.session_state.get("Amountgramperiod", 0),
+                st.session_state.get("Amountpergram", 0),
+                st.session_state.get("AssessedValue", 0),
+                st.session_state.get("MaxAllowed", 0),
+                st.session_state.get("Three_Mth_Rate", 0),
+                st.session_state.get("Mortgagegram", 0),
+                st.session_state.get("Mortgagemonths", 0),
+                current_dt,
+                st.session_state.get("UserID", 0)
+            )
+        elif callno == 4:
+            params = (
+                st.session_state.get("searchreceipt", ""),
+                user_id
+            )
+        elif callno == 5:
+            params = (
+                types,
+                st.session_state.get("searchreceipt", ""),
+                st.session_state.get("selected_payment_no", ""),
+                user_id,
+                0,  # storeid
+                current_dt
+            )
+        elif callno == 6:
+            params = (
+                user_id,
+                0,  # storeid
+                st.session_state.get("searchreceipt", ""),
+                st.session_state.get("selected_payment_no", ""),
+                current_dt,
+                types
+            )
+        elif callno == 7:
+            params = (
+                user_id,
+                0,  # storeid
+                st.session_state.get("searchreceipt", "")
+            )
+        elif callno == 8:
+            params = (
+                user_id,
+                0,  # storeid
+                st.session_state.get("searchreceipt", ""),
+                current_dt,
+                st.session_state.get("selected_payment", 0)
+            )
+        
+        return execute_stored_procedure(callno, params)
 
 # Users Section
 st.markdown("---")
