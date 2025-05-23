@@ -39,7 +39,7 @@ def init_session_state():
     if 'selected_payment_no' not in st.session_state:
         st.session_state.selected_payment_no = ""
     if 'twofactor' not in st.session_state:
-        st.session_state.twofactor = -1 
+        st.session_state.twofactor = "-1"  # Initialize as string
     if 'search_term' not in st.session_state:
         st.session_state.search_term = ""
 
@@ -69,8 +69,6 @@ def validate_user(user_id, username, factor_code):
     try:
         cursor = conn.cursor()
         cursor.execute("{CALL P_ValidateWebUser (?, ?, ?)}", (user_id, username, factor_code))
-
-        result_div.success(factor_code + " " + user_id)
         
         result = cursor.fetchone()
         if result:
@@ -171,41 +169,15 @@ st.title("Show SKN Data")
 
 # Credentials Form
 with st.form("credentials_form"):
-
-    twofactor_val = st.session_state.get("twofactor", -1) 
+    search_term = st.text_input("Enter credentials", key="search_term_input")
+    twofactor_input = st.text_input("Two Factor", key="twofactor_input")
     submitted = st.form_submit_button("Submit")
     
     if submitted:
-        if twofactor_val == -1:
-            
-            # Store values in session state
-            st.session_state.search_term = search_term
-            st.session_state.twofactor = twofactor_input
-    
-            user_id = 19  # Hardcoded as in PHP code         
-    
-            status, msg, code = validate_user(user_id, "", -1)
-            st.session_state.twofactor = code   
-        
-            st.success(code)
-
-        else: 
-
-            # Store values in session state
-            st.session_state.search_term = search_term
-            st.session_state.twofactor = twofactor_input
-    
-            user_id = 19  # Hardcoded as in PHP code
-        
-            # Get values from session state with proper defaults
-            search_term_val = st.session_state.get("search_term", "")
-            twofactor_val = st.session_state.get("twofactor", -1)        
-    
-            status, msg, code = validate_user(user_id, search_term_val, twofactor_val)
-            st.session_state.twofactor = code   
-        
-            st.success(code)
-            
+        # Store values in session state
+        st.session_state.search_term = search_term
+        st.session_state.twofactor = twofactor_input
+        st.success("Credentials submitted successfully!")
     
     result_div = st.empty()
 
@@ -227,7 +199,7 @@ def process_request(callno, types=None):
     except ValueError:
         return [{"status": 1, "msg": "Invalid two-factor code format"}]
     
-    status, msg, code = validate_user(user_id, search_term_val, twofactor_int)
+    status, msg, code = validate_user(user_id, search_term_val, twofactor_val)
     
     if status <= 2:
         if status == 1:
@@ -310,10 +282,10 @@ with col1:
                 st.session_state.populateusers = 1
                 if 'code' in result[0]:
                     st.session_state.twofactor = str(result[0]['code'])
-                    result_div.success("Users populated successfully")
-                else:
-                    error_msg = result[0].get('msg', 'Unknown error') if result else "No result returned"
-                    result_div.error(f"Error: {error_msg}")
+                result_div.success("Users populated successfully")
+            else:
+                error_msg = result[0].get('msg', 'Unknown error') if result else "No result returned"
+                result_div.error(f"Error: {error_msg}")
 
 # Display session state for debugging
 if st.checkbox("Show Session State (Debug)"):
