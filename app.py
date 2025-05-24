@@ -201,7 +201,9 @@ def process_request(callno, types=None):
    
     msg, sttus, code = validate_user(user_id, "webadmin", -1)
 
-    result_div.success("Am i here")
+    result_div.success(msg)
+    result_div.success(sttus)
+    result_div.success(code)
     
     if status <= 2:
         if status == 1:
