@@ -75,7 +75,7 @@ def validate_user(user_id, username, factor_code):
         conn.commit()  # Explicit commit        
         result = cursor.fetchone()
 
-        result_div.success(st.session_state.two_factor)
+        #result_div.success(st.session_state.two_factor)
         
         if result:
             return (result.msg, result.sttus, result.code)
