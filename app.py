@@ -201,10 +201,10 @@ def process_request(callno, types=None):
     user_id = 19  # Hardcoded as in PHP code
     search_term_val = st.session_state.get("search_term", "")
     twofactor_val = st.session_state.get("twofactor", -1)
-
-    result_div.success(twofactor_val)
-    
+   
     status, msg, code = validate_user(user_id, "webadmin", -1)
+
+    result_div.success(code)
     
     if status <= 2:
         if status == 1:
@@ -282,12 +282,5 @@ col1, col2, col3 = st.columns(3)
 with col1:
     if st.button("Populate Users", key="btnUsers"):
         result = process_request(2)
-        if result and result[0].get("status", 0) == 1:
-            st.session_state.userdata = result
-            st.session_state.populateusers = 1
-            st.session_state.two_factor = result[0].get("code")            
-            # result_div.success("Users populated successfully")
-        else:
-            result_div.error(f"Error: {result[0].get('msg', 'Unknown error')}")
-
+    
        
