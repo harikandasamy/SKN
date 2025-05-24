@@ -68,23 +68,17 @@ def validate_user(user_id, username, factor_code):
     
     try:
         
-        cursor.execute(
-        """DECLARE @status INT, @msg VARCHAR(100), @code INT;
-        EXEC P_ValidateWebUser ?, ?, ?, @msg OUTPUT, @status OUTPUT,  @code OUTPUT;
-        SELECT  @msg AS msg, @status AS status, @code AS code""",
-        (user_id, username, factor_code)
-        )
+        # result_div.success(factor_code)
+        # result_div.success(factor_code)
+        cursor = conn.cursor()
+        cursor.execute("{CALL P_ValidateWebUser (?, ?, ?)}", (user_id, username, factor_code))   
         conn.commit()  # Explicit commit        
         result = cursor.fetchone()
-        if result:
-            st.session_state.status = result.status
-            st.session_state.two_factor = result.code
-            return True    
 
         result_div.success(st.session_state.two_factor)
         
         if result:
-            return (result.status, result.msg, result.code)
+            return (result.sttus, result.msg, result.code)
         else:
             return (1, "No data returned from validation", 0)
     except Exception as e:
