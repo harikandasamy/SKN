@@ -67,16 +67,20 @@ def validate_user(user_id, username, factor_code):
         return (1, "Database connection error", 0)
     
     try:
-        # result_div.success(factor_code)
-        # result_div.success(factor_code)
-        cursor = conn.cursor()
-        cursor.execute("{CALL P_ValidateWebUser (?, ?, ?)}", (user_id, username, factor_code))   
-        conn.commit()  # Explicit commit        
-        result = cursor.fetchone()
+        
 
-        #assign status and two factor code
-        st.session_state.status = result.status
-        st.session_state.two_factor = result.code
+
+        cursor.execute(
+        """DECLARE @status INT, @msg VARCHAR(100), @code INT;
+        EXEC P_ValidateWebUser ?, ?, ?, @status OUTPUT, @msg OUTPUT, @code OUTPUT;
+        SELECT  @msg AS msg, @status AS status, @code AS code""",
+        (user_id, username, factor_code)
+        )
+        result = cursor.fetchone()
+        if result:
+            st.session_state.status = result.status
+            st.session_state.two_factor = result.code
+            return True    
 
         result_div.success(st.session_state.two_factor)
         
