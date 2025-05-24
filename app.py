@@ -212,10 +212,9 @@ def process_request(callno, types=None):
     # Get current datetime in Eastern time
     eastern = pytz.timezone('America/New_York')
     current_dt = datetime.now(eastern).strftime('%Y-%m-%d %H:%M:%S')
-
-   
+  
         
-        return execute_stored_procedure(callno, params)
+    return execute_stored_procedure(callno, params)
 
 # Users Section
 st.markdown("---")
