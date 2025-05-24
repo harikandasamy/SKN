@@ -207,9 +207,9 @@ def process_request(callno, types=None):
     
     if status <= 2:
         if status == 1:
-            return [{"msg": msg,"status": status, "code": code}]
+            return [{"msg": msg,"status": sttus, "code": code}]
         else:
-            return [{"msg": msg,"status": status, "code": code}]
+            return [{"msg": msg,"status": sttus, "code": code}]
     
     # Get current datetime in Eastern time
     eastern = pytz.timezone('America/New_York')
