@@ -68,11 +68,9 @@ def validate_user(user_id, username, factor_code):
     
     try:
         
-
-
         cursor.execute(
         """DECLARE @status INT, @msg VARCHAR(100), @code INT;
-        EXEC P_ValidateWebUser ?, ?, ?, @status OUTPUT, @msg OUTPUT, @code OUTPUT;
+        EXEC P_ValidateWebUser ?, ?, ?, @msg OUTPUT, @status OUTPUT,  @code OUTPUT;
         SELECT  @msg AS msg, @status AS status, @code AS code""",
         (user_id, username, factor_code)
         )
