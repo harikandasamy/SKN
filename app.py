@@ -201,73 +201,19 @@ def process_request(callno, types=None):
    
     msg, sttus, code = validate_user(user_id, "webadmin", -1)
 
-    result_div.success(msg)
+    result_div.success("Am i here")
     
     if status <= 2:
         if status == 1:
-            return [{"status": status, "code": code, "msg": msg}]
+            return [{"msg": msg,"status": status, "code": code}]
         else:
-            return [{"status": status, "code": code, "msg": msg}]
+            return [{"msg": msg,"status": status, "code": code}]
     
     # Get current datetime in Eastern time
     eastern = pytz.timezone('America/New_York')
     current_dt = datetime.now(eastern).strftime('%Y-%m-%d %H:%M:%S')
 
-    #allow calling only if status code >= 3
-
-    if  st.session_state.status >= 3:
-    
-        # Prepare parameters based on callno
-        params = None
-        if callno == 3:
-            params = (
-                st.session_state.get("Amountgramperiod", 0),
-                st.session_state.get("Amountpergram", 0),
-                st.session_state.get("AssessedValue", 0),
-                st.session_state.get("MaxAllowed", 0),
-                st.session_state.get("Three_Mth_Rate", 0),
-                st.session_state.get("Mortgagegram", 0),
-                st.session_state.get("Mortgagemonths", 0),
-                current_dt,
-                st.session_state.get("UserID", 0)
-            )
-        elif callno == 4:
-            params = (
-                st.session_state.get("searchreceipt", ""),
-                user_id
-            )
-        elif callno == 5:
-            params = (
-                types,
-                st.session_state.get("searchreceipt", ""),
-                st.session_state.get("selected_payment_no", ""),
-                user_id,
-                0,  # storeid
-                current_dt
-            )
-        elif callno == 6:
-            params = (
-                user_id,
-                0,  # storeid
-                st.session_state.get("searchreceipt", ""),
-                st.session_state.get("selected_payment_no", ""),
-                current_dt,
-                types
-            )
-        elif callno == 7:
-            params = (
-                user_id,
-                0,  # storeid
-                st.session_state.get("searchreceipt", "")
-            )
-        elif callno == 8:
-            params = (
-                user_id,
-                0,  # storeid
-                st.session_state.get("searchreceipt", ""),
-                current_dt,
-                st.session_state.get("selected_payment", 0)
-            )
+   
         
         return execute_stored_procedure(callno, params)
 
