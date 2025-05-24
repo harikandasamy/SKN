@@ -78,7 +78,7 @@ def validate_user(user_id, username, factor_code):
         result_div.success(st.session_state.two_factor)
         
         if result:
-            return (result.sttus, result.msg, result.code)
+            return (result.msg, result.sttus, result.code)
         else:
             return (1, "No data returned from validation", 0)
     except Exception as e:
@@ -199,7 +199,7 @@ def process_request(callno, types=None):
     search_term_val = st.session_state.get("search_term", "")
     twofactor_val = st.session_state.get("twofactor", -1)
    
-    status, msg, code = validate_user(user_id, "webadmin", -1)
+    msg, sttus, code = validate_user(user_id, "webadmin", -1)
 
     result_div.success(code)
     
