@@ -74,6 +74,7 @@ def validate_user(user_id, username, factor_code):
         SELECT  @msg AS msg, @status AS status, @code AS code""",
         (user_id, username, factor_code)
         )
+        conn.commit()  # Explicit commit        
         result = cursor.fetchone()
         if result:
             st.session_state.status = result.status
