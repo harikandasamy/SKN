@@ -221,7 +221,7 @@ def process_request(callno, types=None):
     # Show status for debugging
     result_div.success(result[1])
 
-    status = result[1]  # <-- You missed this line!
+    status = result[0]  # <-- You missed this line!
 
     if status <= 2:
         if status == 1:
