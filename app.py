@@ -71,9 +71,23 @@ def validate_user(user_id, username, factor_code):
         # result_div.success(factor_code)
         # result_div.success(factor_code)
         cursor = conn.cursor()
-        cursor.execute("{CALL P_ValidateWebUser (?, ?, ?)}", (user_id, username, factor_code))   
-        conn.commit()  # Explicit commit        
+        #cursor.execute("{CALL P_ValidateWebUser (?, ?, ?)}", (user_id, username, factor_code))   
+        #conn.commit()  # Explicit commit        
+        #result = cursor.fetchone()
+
+
+        # Execute the stored procedure that inserts and returns a result
+        cursor.execute("{CALL P_ValidateWebUser (?, ?, ?)}", (user_id, username, factor_code))
+
+        # Fetch the first result set (your stored procedure's SELECT)
         result = cursor.fetchone()
+
+        # Drain any other result sets/messages to avoid driver issues
+        while cursor.nextset():
+            pass
+
+        # Commit after you fetch results
+        conn.commit()
 
         #result_div.success(st.session_state.two_factor)
 
