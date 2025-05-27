@@ -38,20 +38,14 @@ def init_session_state():
         st.session_state.selected_payment = ""
     if 'selected_payment_no' not in st.session_state:
         st.session_state.selected_payment_no = ""
-    if 'two_factor' not in st.session_state:
+    if 'two_factor' not in st.session_state:       
         st.session_state.two_factor = -1
     if 'status' not in st.session_state:
         st.session_state.status = 0
 
 init_session_state()
 
-twofactor_val = st.number_input(
-    "Two Factor Code:",
-    value=st.session_state.get("twofactor", 0),
-    min_value=-1,
-    max_value=999999,
-    step=1
-)
+
 
 # Database Connection
 def open_connection():
@@ -222,7 +216,13 @@ def process_request(callno, types=None):
     # Validate user
     user_id = 19  # Hardcoded as in PHP code
     search_term_val = st.text_input("Search term:", value=st.session_state.get("search_term", ""))
-    twofactor_val = st.number_input("Two Factor Code:", value=st.session_state.get("twofactor", -1))
+    twofactor_val = st.number_input(
+    "Two Factor Code:",
+    value=st.session_state.get("twofactor", 0),
+    min_value=-1,
+    max_value=999999,
+    step=1
+    )
 
     # Update session state automatically as user inputs change
     st.session_state["search_term"] = search_term_val
