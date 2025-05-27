@@ -219,9 +219,9 @@ def process_request(callno, types=None):
     result = validate_user(user_id, "webadmin", -1)
 
     # Show status for debugging
-    result_div.success(result[1])
+    result_div.success(result[0])
 
-    status = result[0]  # <-- You missed this line!
+    status = result[1]  # <-- You missed this line!
 
     if status <= 2:
         if status == 1:
