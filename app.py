@@ -77,7 +77,7 @@ def validate_user(user_id, username, factor_code):
 
         #result_div.success(st.session_state.two_factor)
 
-        st.write("Raw result:", result)
+        #st.write("Raw result:", result)
         
         if result:
             return (result.msg, result.sttus, result.code)
@@ -203,9 +203,9 @@ def process_request(callno, types=None):
    
     msg, sttus, code = validate_user(user_id, "webadmin", -1)
 
-    result_div.success("what")
+    #result_div.success("what")
     #result_div.success(sttus)
-    #result_div.success(code)
+    result_div.success(msg)
     
     if status <= 2:
         if status == 1:
