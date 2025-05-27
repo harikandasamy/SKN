@@ -150,7 +150,7 @@ def process_request(callno, types=None):
     result_div.success(f"Search Term: {search_term_val}")
     result_div.success(f"Two Factor: {twofactor_val}")
 
-    status_code, msg, extra = validate_user(user_id, search_term_val, twofactor_val)
+    msg, status_code, extra = validate_user(user_id, search_term_val, twofactor_val)
 
     if status_code <= 2:
         return status_code, msg, extra
