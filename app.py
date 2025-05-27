@@ -146,7 +146,7 @@ def process_request(callno, types=None):
     
     result_div.success(twofactor_val)
 
-    msg, status_code, code = validate_user(user_id, search_term_val, twofactor_val)
+    #msg, status_code, code = validate_user(user_id, search_term_val, twofactor_val)
 
     if status_code <= 2:
         return msg, status_code, code
