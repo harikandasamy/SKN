@@ -131,7 +131,7 @@ st.title("Show SKN Data")
 
 # Inputs outside any form
 st.text_input("Enter credentials", key="search_term")
-st.text_input("Two Factor", key="twofactor")
+st.number_input("Two Factor", key="twofactor")
 
 result_div = st.empty()
 
