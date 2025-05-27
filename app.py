@@ -215,8 +215,8 @@ result_div = st.empty()
 def process_request(callno, types=None):
     # Validate user
     user_id = 19  # Hardcoded as in PHP code
-    search_term_val = st.text_input("Enter credentials", value=st.session_state.get("search_term", ""))
-    twofactor_val = st.number_input("Two Factor Code:", value=max(0, min(int(st.session_state.get("twofactor", 0) or 0), 999999)), min_value=0, max_value=999999, step=1)
+    search_term_val = st.text_input("search_term", value=st.session_state.get("search_term", ""))
+    twofactor_val = st.number_input("twofactor", value=max(0, min(int(st.session_state.get("twofactor", 0) or 0), 999999)), min_value=0, max_value=999999, step=1)
 
     # Update session state automatically as user inputs change
     st.session_state["search_term"] = search_term_val
