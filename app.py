@@ -56,15 +56,22 @@ def validate_user(user_id, username, factor_code):
     try:
         cursor = conn.cursor()
         cursor.execute("{CALL P_ValidateWebUser (?, ?, ?)}", (user_id, username, factor_code))
-        result = cursor.fetchone()
+        
+        # Skip intermediate results (like 'rows affected') to get to the SELECT result set
         while cursor.nextset():
             pass
+        
+        result = cursor.fetchone()
         conn.commit()
+        
         if result is None:
             return (1, "No data returned from validation", 0)
+        
         return (result[0], result[1], result[2])
+    
     except Exception as e:
         return (1, f"Validation error: {str(e)}", 0)
+    
     finally:
         conn.close()
 
