@@ -23,7 +23,7 @@ def init_session_state():
         'selected_user': "",
         'selected_payment': "",
         'selected_payment_no': "",
-        'twofactor': 0,
+        'twofactor': "0",
         'status': 0,
         'search_term': ""
     }
@@ -131,7 +131,7 @@ st.title("Show SKN Data")
 
 # Inputs outside any form
 st.text_input("Enter credentials", key="search_term")
-st.number_input("Two Factor", key="twofactor")
+st.text_input("Two Factor", key="twofactor")
 
 result_div = st.empty()
 
@@ -140,9 +140,9 @@ def process_request(callno, types=None):
     user_id = 19
     search_term_val = st.session_state.get("search_term", "")
     try:
-        twofactor_val = int(st.session_state.get("twofactor", 0))
+        twofactor_val = st.session_state.get("twofactor", "0")
     except ValueError:
-        twofactor_val = 0
+        twofactor_val = "0"
 
     st.session_state["search_term"] = search_term_val
     st.session_state["twofactor"] = twofactor_val
