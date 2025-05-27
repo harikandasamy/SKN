@@ -140,7 +140,7 @@ def process_request(callno, types=None):
     user_id = 19
     search_term_val = st.session_state.get("search_term", "")
     try:
-        twofactor_val = int(st.session_state.get("twofactor", "0"))
+        twofactor_val = int(st.session_state.get("twofactor", 0))
     except ValueError:
         twofactor_val = 0
 
@@ -150,10 +150,10 @@ def process_request(callno, types=None):
     result_div.success(f"Search Term: {search_term_val}")
     result_div.success(f"Two Factor: {twofactor_val}")
 
-    status_code, msg, extra = validate_user(user_id, search_term_val, twofactor_val)
+    msg, status_code, code = validate_user(user_id, search_term_val, twofactor_val)
 
     if status_code <= 2:
-        return status_code, msg, extra
+        return msg, status_code, code
 
     return execute_stored_procedure(callno, types)
 
