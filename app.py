@@ -45,6 +45,14 @@ def init_session_state():
 
 init_session_state()
 
+twofactor_val = st.number_input(
+    "Two Factor Code:",
+    value=st.session_state.get("twofactor", 0),
+    min_value=-1,
+    max_value=999999,
+    step=1
+)
+
 # Database Connection
 def open_connection():
     try:
