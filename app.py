@@ -216,10 +216,10 @@ def process_request(callno, types=None):
     search_term_val = st.session_state.get("search_term", "")
     twofactor_val = st.session_state.get("twofactor", -1)
 
-    result = validate_user(user_id, "webadmin", -1)
+    result = validate_user(user_id, "webadmin", twofactor_val)
 
     # Show status for debugging
-    result_div.success(result[0])
+    result_div.success(result[2])
 
     status = result[1]  # <-- You missed this line!
 
