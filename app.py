@@ -82,8 +82,8 @@ def validate_user(user_id, username, factor_code):
 
         if result is None:
             return (1, "No data returned from validation", 0)
-        else:
-            return (result[0], result[1], result[2]) 
+
+        return (result[0], result[1], result[2])
      
     except Exception as e:
         return (1, f"Validation error: {str(e)}", 0)
