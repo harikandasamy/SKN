@@ -141,7 +141,7 @@ def process_request(callno, types=None):
     search_term_val = st.session_state.get("search_term", "")
     twofactor_val = st.session_state.get("twofactor", "").strip() or "0"
     
-    result_div.success(twofactor_val)
+    result_div.success(str(twofactor_val))
 
     msg, status_code, code = validate_user(user_id, search_term_val, twofactor_val)
 
