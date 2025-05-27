@@ -80,7 +80,7 @@ def validate_user(user_id, username, factor_code):
         #st.write("Raw result:", result)
         
         if result:
-            return (result.msg, result.sttus, result.code)
+            return (result[0], result[1], result[2])
         else:
             return (1, "No data returned from validation", 0)
     except Exception as e:
