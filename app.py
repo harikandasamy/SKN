@@ -166,9 +166,9 @@ def process_request(callno, params=None):
     result_div.success(f"Two Factor: {twofactor_val}")
 
     result = validate_user(19, search_term_val, twofactor_val)
-    
-    status_code = result[0]
-    message = result[1]
+
+    message = result[0]
+    status_code = result[1]
     code = result[2]
 
     if status_code <= 2:
