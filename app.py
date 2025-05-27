@@ -78,11 +78,13 @@ def validate_user(user_id, username, factor_code):
         #result_div.success(st.session_state.two_factor)
 
         #st.write("Raw result:", result)
-        
-        if result:
-            return (result[0], result[1], result[2])
-        else:
+
+
+         if result is None:
             return (1, "No data returned from validation", 0)
+         else:
+             return (result[0], result[1], result[2]) 
+     
     except Exception as e:
         return (1, f"Validation error: {str(e)}", 0)
         result_div.success("Why am I here?")
