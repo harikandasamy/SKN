@@ -111,7 +111,7 @@ with col1:
         result_div.success(f"Search Term: {search_term_val}")
         result_div.success(f"Two Factor: {twofactor_val}")
 
-        status_code, message, code = validate_user(user_id, search_term_val, twofactor_val)
+        message, status_code, code = validate_user(user_id, search_term_val, twofactor_val)
         result_div.info(f"Validation Result: {message}")
 
         if status_code <= 2:
