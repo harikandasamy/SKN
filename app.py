@@ -203,11 +203,11 @@ def process_request(callno, types=None):
     search_term_val = st.session_state.get("search_term", "")
     twofactor_val = st.session_state.get("twofactor", -1)
    
-    (msg, sttus, code) = validate_user(user_id, "webadmin", -1)
+    result = validate_user(user_id, "webadmin", -1)
 
     #result_div.success("what")
     #result_div.success(sttus)
-    result_div.success(msg)
+    result_div.success(result[0])
     
     if status <= 2:
         if status == 1:
