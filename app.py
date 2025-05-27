@@ -139,12 +139,9 @@ result_div = st.empty()
 def process_request(callno, types=None):
     user_id = 19
     search_term_val = st.session_state.get("search_term", "")
-    try:
-        twofactor_val = st.session_state.get("twofactor", "0")
-    except ValueError:
-        twofactor_val = "0"   
+    twofactor_val = st.session_state.get("twofactor", "0")
     
-    result_div.success(search_term_val)
+    result_div.success(twofactor_val)
 
     msg, status_code, code = validate_user(user_id, search_term_val, twofactor_val)
 
