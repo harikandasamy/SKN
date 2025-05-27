@@ -211,29 +211,28 @@ result_div = st.empty()
 
 # Main Processing Function
 def process_request(callno, types=None):
-       
     # Validate user
     user_id = 19  # Hardcoded as in PHP code
     search_term_val = st.session_state.get("search_term", "")
     twofactor_val = st.session_state.get("twofactor", -1)
-   
+
     result = validate_user(user_id, "webadmin", -1)
 
-    #result_div.success("what")
-    #result_div.success(sttus)
+    # Show status for debugging
     result_div.success(result[1])
-    
+
+    status = result[1]  # <-- You missed this line!
+
     if status <= 2:
         if status == 1:
             return (result[0], result[1], result[2])
         else:
             return (result[0], result[1], result[2])
-    
+
     # Get current datetime in Eastern time
     eastern = pytz.timezone('America/New_York')
     current_dt = datetime.now(eastern).strftime('%Y-%m-%d %H:%M:%S')
-  
-        
+
     return execute_stored_procedure(callno, params)
 
 # Users Section
