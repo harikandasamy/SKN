@@ -76,6 +76,8 @@ def validate_user(user_id, username, factor_code):
         result = cursor.fetchone()
 
         #result_div.success(st.session_state.two_factor)
+
+        st.write("Raw result:", result)
         
         if result:
             return (result.msg, result.sttus, result.code)
