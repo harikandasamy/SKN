@@ -92,7 +92,7 @@ st.title("Show SKN Data")
 # ---------- Input Section ----------
 st.markdown("### Enter Credentials")
 st.text_input("Search Term", key="search_term")
-st.number_input("Two Factor Code", min_value=0, max_value=999999, step=1, key="twofactor")
+st.number_input("Two Factor Code", key="twofactor")
 
 result_div = st.empty()
 
