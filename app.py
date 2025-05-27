@@ -148,7 +148,7 @@ def process_request(callno, types=None):
     if status_code <= 2:
         return msg, status_code, code
 
-    return execute_stored_procedure(callno, types)
+    #return execute_stored_procedure(callno, types)
 
 # Users Section
 st.markdown("---")
