@@ -23,7 +23,7 @@ def init_session_state():
         'selected_user': "",
         'selected_payment': "",
         'selected_payment_no': "",
-        'twofactor': "0",
+        'twofactor': "",
         'status': 0,
         'search_term': ""
     }
