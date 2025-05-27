@@ -13,7 +13,6 @@ PASSWORD = "Password2011@"
 def init_session_state():
     defaults = {
         "search_term": "",
-        #"twofactor": 0,
         "userdata": "",
         "populateusers": 0,
         "updateusers": 0,
