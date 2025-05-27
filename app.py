@@ -56,24 +56,27 @@ def validate_user(user_id, username, factor_code):
     try:
         cursor = conn.cursor()
         cursor.execute("{CALL P_ValidateWebUser (?, ?, ?)}", (user_id, username, factor_code))
-        
-        # Skip intermediate results (like 'rows affected') to get to the SELECT result set
-        while cursor.nextset():
-            pass
-        
+
+        # Try fetching first row immediately
         result = cursor.fetchone()
-        conn.commit()
-        
+
+        # If None, try advancing to the next result set and fetch again
+        if result is None:
+            has_next = cursor.nextset()
+            if has_next:
+                result = cursor.fetchone()
+
+        # If still None, no results found
         if result is None:
             return (1, "No data returned from validation", 0)
-        
-        return (result[0], result[1], result[2])
-    
+
+        # Return your SP results
+        return (result[0], result[1], result[2])  # Based on your SP, msg, status, code order
     except Exception as e:
         return (1, f"Validation error: {str(e)}", 0)
-    
     finally:
         conn.close()
+
 
 # Database Operations
 def execute_stored_procedure(callno, params=None):
