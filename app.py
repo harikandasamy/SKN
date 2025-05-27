@@ -142,10 +142,7 @@ def process_request(callno, types=None):
     try:
         twofactor_val = st.session_state.get("twofactor", "0")
     except ValueError:
-        twofactor_val = "0"
-
-    st.session_state["search_term"] = search_term_val
-    st.session_state["twofactor"] = twofactor_val
+        twofactor_val = "0"   
 
     result_div.success(f"Search Term: {search_term_val}")
     result_div.success(f"Two Factor: {twofactor_val}")
