@@ -171,14 +171,56 @@ def process_request(callno, types=None):
 st.markdown("---")
 st.header("Users Management")
 
+
 col1, col2, col3 = st.columns(3)
+
 with col1:
-    if st.button("Populate Users", key="btnUsers"):
-        result = process_request(2)
-        st.write(result)
-    if st.button("Update Users", key="btnUpdateUsers"):
-        result = process_request(2)
-        st.write(result)
-    if st.button("Update Users", key="btnRevertUsers"):
-        result = process_request(2)
-        st.write(result)
+    if st.button("Populate Users"):
+        conn = open_connection()
+        if conn:
+            try:                       
+                rows = process_request(2)
+                
+                if rows:
+                    st.session_state.userdata = rows
+                    st.session_state.populateusers = 1
+                    st.success("Users populated successfully")
+                else:
+                    st.error("No user data found")
+            except Exception as e:
+                st.error(f"Error: {str(e)}")
+            finally:
+                conn.close()
+
+with col2:
+    if st.button("Update Users"):
+        if st.session_state.populateusers == 1 and st.session_state.updateusers == 0:
+            st.session_state.updateusers = 1
+            st.info("Select a user to update")
+        elif st.session_state.updateusers == 1:
+            st.session_state.updateusers = 2
+            st.warning("Confirm that you are updating user values")
+        elif st.session_state.updateusers == 2:
+            st.session_state.updateusers = 0
+            st.success("User values updated")
+        else:
+            st.error("Users are not populated")
+
+with col3:
+    if st.button("Revert Users"):
+        st.session_state.populateusers = 0
+        st.session_state.updateusers = 0
+        st.session_state.updateusrname = ""
+        st.session_state.userdata = None
+        st.success("User data cleared")
+
+if st.session_state.populateusers == 1 and st.session_state.userdata:
+    user_options = [f"{row.UserName} (ID: {row.UserID})" for row in st.session_state.userdata]
+    selected_user = st.selectbox("Select User", options=user_options)
+    
+    if st.session_state.updateusers >= 1:
+        user_df = pd.DataFrame.from_records(
+            [row.__dict__ for row in st.session_state.userdata],
+            columns=st.session_state.userdata[0].__dict__.keys()
+        )
+        editable_df = st.data_editor(user_df)
