@@ -207,7 +207,7 @@ def process_request(callno, types=None):
 
     #result_div.success("what")
     #result_div.success(sttus)
-    result_div.success(result[0])
+    result_div.success(result[1])
     
     if status <= 2:
         if status == 1:
