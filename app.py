@@ -139,7 +139,7 @@ result_div = st.empty()
 def process_request(callno, types=None):
     user_id = 19
     search_term_val = st.session_state.get("search_term", "")
-    twofactor_val = st.session_state.get("twofactor", "0")
+    twofactor_val = st.session_state.get("twofactor", "").strip() or "0"
     
     result_div.success(twofactor_val)
 
