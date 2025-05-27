@@ -136,52 +136,42 @@ st.markdown("""
 
 st.title("Show SKN Data")
 
-# Credentials Form
-with st.form("credentials_form"):
-    # Use session state keys, no value= set to avoid conflicts
-    search_term = st.text_input("Enter credentials", key="search_term")
-    twofactor = st.number_input(
-        "Two Factor",
-        min_value=0,
-        max_value=999999,
-        step=1,
-        key="twofactor"
-    )
-    submitted = st.form_submit_button("Submit")
-    if submitted:
-        status, msg, code = validate_user(19, search_term, twofactor)
-        if status == 0:
-            st.success(f"User validated: {msg}")
-        else:
-            st.error(f"Validation failed: {msg}")
+# Use session state keys, no value= set to avoid conflicts
+search_term = st.text_input("Enter credentials", key="search_term")
+twofactor = st.number_input(
+    "Two Factor",
+    min_value=0,
+    max_value=999999,
+    step=1,
+    key="twofactor"
+)
 
-result_div = st.empty()
+
 
 def process_request(callno, params=None):
+    
+    # Read current inputs from session state, no redundant widgets here
+    search_term_val = st.session_state.get("search_term", "")
+    twofactor_val = st.session_state.get("twofactor", 0)
 
-    if st.button("Populate Users"):
-        # Read current inputs from session state, no redundant widgets here
-        search_term_val = st.session_state.get("search_term", "")
-        twofactor_val = st.session_state.get("twofactor", 0)
-    
-        result_div.success(f"Search Term: {search_term_val}")
-        #result_div.success(f"Two Factor: {twofactor_val}")
-    
-        result = validate_user(19, search_term_val, twofactor_val)
-    
-        message = result[0]
-        status_code = result[1]
-        code = result[2]
-    
-        if status_code <= 2:
-            return (status_code, message, code)
-    
-        # Get current datetime in Eastern timezone
-        eastern = pytz.timezone('America/New_York')
-        current_dt = datetime.now(eastern).strftime('%Y-%m-%d %H:%M:%S')
-    
-        # Assuming params should be passed for some callno; adjust as needed
-        return execute_stored_procedure(callno, params)
+    result_div.success(f"Search Term: {search_term_val}")
+    #result_div.success(f"Two Factor: {twofactor_val}")
+
+    result = validate_user(19, search_term_val, twofactor_val)
+
+    message = result[0]
+    status_code = result[1]
+    code = result[2]
+
+    if status_code <= 2:
+        return (status_code, message, code)
+
+    # Get current datetime in Eastern timezone
+    eastern = pytz.timezone('America/New_York')
+    current_dt = datetime.now(eastern).strftime('%Y-%m-%d %H:%M:%S')
+
+    # Assuming params should be passed for some callno; adjust as needed
+    return execute_stored_procedure(callno, params)
 
 # Users Section
 st.markdown("---")
