@@ -158,28 +158,30 @@ with st.form("credentials_form"):
 result_div = st.empty()
 
 def process_request(callno, params=None):
-    # Read current inputs from session state, no redundant widgets here
-    search_term_val = st.session_state.get("search_term", "")
-    twofactor_val = st.session_state.get("twofactor", 0)
 
-    result_div.success(f"Search Term: {search_term_val}")
-    #result_div.success(f"Two Factor: {twofactor_val}")
-
-    result = validate_user(19, search_term_val, twofactor_val)
-
-    message = result[0]
-    status_code = result[1]
-    code = result[2]
-
-    if status_code <= 2:
-        return (status_code, message, code)
-
-    # Get current datetime in Eastern timezone
-    eastern = pytz.timezone('America/New_York')
-    current_dt = datetime.now(eastern).strftime('%Y-%m-%d %H:%M:%S')
-
-    # Assuming params should be passed for some callno; adjust as needed
-    return execute_stored_procedure(callno, params)
+    if st.button("Populate Users"):
+        # Read current inputs from session state, no redundant widgets here
+        search_term_val = st.session_state.get("search_term", "")
+        twofactor_val = st.session_state.get("twofactor", 0)
+    
+        result_div.success(f"Search Term: {search_term_val}")
+        #result_div.success(f"Two Factor: {twofactor_val}")
+    
+        result = validate_user(19, search_term_val, twofactor_val)
+    
+        message = result[0]
+        status_code = result[1]
+        code = result[2]
+    
+        if status_code <= 2:
+            return (status_code, message, code)
+    
+        # Get current datetime in Eastern timezone
+        eastern = pytz.timezone('America/New_York')
+        current_dt = datetime.now(eastern).strftime('%Y-%m-%d %H:%M:%S')
+    
+        # Assuming params should be passed for some callno; adjust as needed
+        return execute_stored_procedure(callno, params)
 
 # Users Section
 st.markdown("---")
