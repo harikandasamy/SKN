@@ -1,7 +1,5 @@
 import streamlit as st
 import pyodbc
-from datetime import datetime
-import pytz
 
 # Database Configuration
 SERVER = "P3NWPLSK12SQL-v06.shr.prod.phx3.secureserver.net"
@@ -9,7 +7,7 @@ DATABASE = "SKNFSPROD"
 USERNAME = "SKNFSPROD"
 PASSWORD = "Password2011@"
 
-# Initialize session state
+# Initialize session state defaults
 def init_session_state():
     defaults = {
         'userdata': "",
@@ -33,7 +31,6 @@ def init_session_state():
 
 init_session_state()
 
-# Database Connection
 def open_connection():
     try:
         conn = pyodbc.connect(
@@ -48,38 +45,35 @@ def open_connection():
         st.error(f"Database connection failed: {str(e)}")
         return None
 
-# User Validation
 def validate_user(user_id, username, factor_code):
     conn = open_connection()
     if not conn:
         return (1, "Database connection error", 0)
     try:
-        result_div.success(factor_code)
         cursor = conn.cursor()
         cursor.execute("{CALL P_ValidateWebUser (?, ?, ?)}", (user_id, username, factor_code))
 
-        # Try fetching first row immediately
-        result = cursor.fetchone()
+        # Advance through result sets until data row found
+        result = None
+        while True:
+            row = cursor.fetchone()
+            if row:
+                result = row
+                break
+            if not cursor.nextset():
+                break
 
-        # If None, try advancing to the next result set and fetch again
-        if result is None:
-            has_next = cursor.nextset()
-            if has_next:
-                result = cursor.fetchone()
+        conn.commit()
 
-        # If still None, no results found
         if result is None:
             return (1, "No data returned from validation", 0)
 
-        # Return your SP results
-        return (result[0], result[1], result[2])  # Based on your SP, msg, status, code order
+        return (result[0], result[1], result[2])  # msg, status, code
     except Exception as e:
         return (1, f"Validation error: {str(e)}", 0)
     finally:
         conn.close()
 
-
-# Database Operations
 def execute_stored_procedure(callno, params=None):
     conn = open_connection()
     if not conn:
@@ -88,21 +82,11 @@ def execute_stored_procedure(callno, params=None):
         cursor = conn.cursor()
         if callno == 2:
             cursor.execute("{CALL P_GetAllowedAmtPerGrams}")
-        elif callno == 3:
-            cursor.execute("{CALL P_UpdateAllowedAmtPerGrams (?, ?, ?, ?, ?, ?, ?, ?, ?)}", params)
-        elif callno == 4:
-            cursor.execute("{CALL P_GetRcptDetailsforWebsite (?, ?)}", params)
-        elif callno == 5:
-            cursor.execute("{CALL P_AddPenalty (?, ?, ?, ?, ?, ?)}", params)
-        elif callno == 6:
-            cursor.execute("{CALL P_GetUpdatePenaltyRemoval (?, ?, ?, ?, ?, ?)}", params)
-        elif callno == 7:
-            cursor.execute("{CALL P_GetMortgagePaymentsHistory (?, ?, ?)}", params)
-        elif callno == 8:
-            cursor.execute("{CALL P_MortgageRevert (?, ?, ?, ?, ?)}", params)
+        # Add other cases here...
+
         conn.commit()
 
-        if callno in [2, 4, 7]:
+        if callno == 2:
             columns = [column[0] for column in cursor.description]
             results = [dict(zip(columns, row)) for row in cursor.fetchall()]
             return results
@@ -113,54 +97,28 @@ def execute_stored_procedure(callno, params=None):
     finally:
         conn.close()
 
-# Streamlit UI Setup
 st.set_page_config(page_title="Show SKN Data", layout="wide")
-st.markdown("""
-<style>
-.stButton>button {
-    background-color: blue;
-    border: 1px solid blue;
-    color: white;
-    padding: 10px 24px;
-    cursor: pointer;
-    width: 100%;
-    margin: 5px 0;
-}
-.stButton>button:hover {
-    background-color: #3e8e41;
-}
-.stTextInput>div>div>input {
-    padding: 10px;
-}
-.stSelectbox>div>div>select {
-    padding: 10px;
-}
-</style>
-""", unsafe_allow_html=True)
-
 st.title("Show SKN Data")
 
-# Inputs outside any form
 st.text_input("Enter credentials", key="search_term")
 st.text_input("Two Factor", key="twofactor")
 
 result_div = st.empty()
 
-# Main Processing Function
 def process_request(callno, types=None):
     user_id = 19
     search_term_val = st.session_state.get("search_term", "")
     twofactor_val = st.session_state.get("twofactor", "").strip() or "0"
-    
+
     msg, status_code, code = validate_user(user_id, search_term_val, twofactor_val)
-    result_div.success(status_code)
+    result_div.success(f"Status: {status_code} | Message: {msg} | Code: {code}")
 
-    #if status_code <= 2:
-    #    return msg, status_code, code
+    if status_code <= 2:
+        return {"msg": msg, "status": status_code, "code": code}
 
-    #return execute_stored_procedure(callno, types)
+    # Proceed to your other stored procedures if validation passed
+    return execute_stored_procedure(callno, types)
 
-# Users Section
 st.markdown("---")
 st.header("Users Management")
 
