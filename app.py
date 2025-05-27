@@ -153,9 +153,10 @@ def process_request(callno, types=None):
     twofactor_val = st.session_state.get("twofactor", "").strip() or "0"
     
     msg, status_code, code = validate_user(user_id, search_term_val, twofactor_val)
+    result_div.success(status_code)
 
-    if status_code <= 2:
-        return msg, status_code, code
+    #if status_code <= 2:
+    #    return msg, status_code, code
 
     #return execute_stored_procedure(callno, types)
 
