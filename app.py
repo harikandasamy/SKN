@@ -81,22 +81,71 @@ def execute_stored_procedure(callno, params=None):
     try:
         cursor = conn.cursor()
         if callno == 2:
-            cursor.execute("{CALL P_GetAllowedAmtPerGrams}")
-        # Add other cases here...
-
-        conn.commit()
-
-        if callno == 2:
-            columns = [column[0] for column in cursor.description]
-            results = [dict(zip(columns, row)) for row in cursor.fetchall()]
-            return results
+            cursor.execute("SET NOCOUNT ON; EXEC P_GetAllowedAmtPerGrams")
+        elif callno == 3:
+            cursor.execute("""
+                SET NOCOUNT ON; EXEC P_UpdateAllowedAmtPerGrams ?, ?, ?, ?, ?, ?, ?, ?, ?
+            """, (
+                form_data["Amountgramperiod"],
+                form_data["Amountpergram"],
+                form_data["AssessedValue"],
+                form_data["MaxAllowed"],
+                form_data["Three_Mth_Rate"],
+                form_data["Mortgagegram"],
+                form_data["Mortgagemonths"],
+                get_est_time(),
+                form_data["UserID"]
+            ))
+        elif callno == 4:
+            cursor.execute("SET NOCOUNT ON; EXEC P_GetRcptDetailsforWebsite ?, ?", (form_data["receiptno"], 19))
+        elif callno == 5:
+            cursor.execute("SET NOCOUNT ON; EXEC P_AddPenalty ?, ?, ?, ?, ?, ?", (
+                form_data["type"],
+                form_data["receiptno"],
+                form_data["paymentno"],
+                19,
+                0,
+                get_est_time()
+            ))
+        elif callno == 6:
+            cursor.execute("SET NOCOUNT ON; EXEC P_GetUpdatePenaltyRemoval ?, ?, ?, ?, ?, ?", (
+                19,
+                0,
+                form_data["receiptno"],
+                form_data["paymentno"],
+                get_est_time(),
+                form_data["type"]
+            ))
+        elif callno == 7:
+            cursor.execute("SET NOCOUNT ON; EXEC P_GetMortgagePaymentsHistory ?, ?, ?", (
+                19,
+                0,
+                form_data["receiptno"]
+            ))
+        elif callno == 8:
+            cursor.execute("SET NOCOUNT ON; EXEC P_MortgageRevert ?, ?, ?, ?, ?", (
+                19,
+                0,
+                form_data["receiptno"],
+                get_est_time(),
+                form_data["idrevert"]
+            ))
         else:
-            return [{"status": 0, "msg": "Operation completed successfully"}]
+            return [{"status": 1, "msg": "Invalid callno"}]
+
+        # Try fetching results
+        results = []
+        columns = [col[0] for col in cursor.description] if cursor.description else []
+        for row in cursor.fetchall():
+            results.append(dict(zip(columns, row)))
+
+        return results if results else [{"status": 0, "msg": "Operation completed successfully"}]
+
     except Exception as e:
-        return [{"status": 1, "msg": f"Database error: {str(e)}"}]
+        return [{"status": 1, "msg": f"DB error: {str(e)}"}]
     finally:
         conn.close()
-
+        
 st.set_page_config(page_title="Show SKN Data", layout="wide")
 st.title("Show SKN Data")
 
@@ -125,5 +174,11 @@ st.header("Users Management")
 col1, col2, col3 = st.columns(3)
 with col1:
     if st.button("Populate Users", key="btnUsers"):
+        result = process_request(2)
+        st.write(result)
+    if st.button("Update Users", key="btnUpdateUsers"):
+        result = process_request(2)
+        st.write(result)
+    if st.button("Update Users", key="btnRevertUsers"):
         result = process_request(2)
         st.write(result)
