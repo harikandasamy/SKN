@@ -172,55 +172,169 @@ st.markdown("---")
 st.header("Users Management")
 
 
-col1, col2, col3 = st.columns(3)
-
-with col1:
-    if st.button("Populate Users"):
-        conn = open_connection()
-        if conn:
-            try:                       
-                rows = process_request(2)
-                
-                if rows:
-                    st.session_state.userdata = rows
-                    st.session_state.populateusers = 1
-                    st.success("Users populated successfully")
-                else:
-                    st.error("No user data found")
-            except Exception as e:
-                st.error(f"Error: {str(e)}")
-            finally:
-                conn.close()
-
-with col2:
-    if st.button("Update Users"):
-        if st.session_state.populateusers == 1 and st.session_state.updateusers == 0:
-            st.session_state.updateusers = 1
-            st.info("Select a user to update")
-        elif st.session_state.updateusers == 1:
-            st.session_state.updateusers = 2
-            st.warning("Confirm that you are updating user values")
-        elif st.session_state.updateusers == 2:
-            st.session_state.updateusers = 0
-            st.success("User values updated")
-        else:
-            st.error("Users are not populated")
-
-with col3:
-    if st.button("Revert Users"):
-        st.session_state.populateusers = 0
-        st.session_state.updateusers = 0
-        st.session_state.updateusrname = ""
-        st.session_state.userdata = None
-        st.success("User data cleared")
-
-if st.session_state.populateusers == 1 and st.session_state.userdata:
-    user_options = [f"{row.UserName} (ID: {row.UserID})" for row in st.session_state.userdata]
-    selected_user = st.selectbox("Select User", options=user_options)
+# User management section
+with st.expander("User Management"):
+    col1, col2, col3 = st.columns(3)
     
-    if st.session_state.updateusers >= 1:
-        user_df = pd.DataFrame.from_records(
-            [row.__dict__ for row in st.session_state.userdata],
-            columns=st.session_state.userdata[0].__dict__.keys()
+    with col1:
+        if st.button("Populate Users"):
+            conn = open_connection()
+            if conn:
+                try:
+                    cursor = conn.cursor()
+                    cursor.execute("{CALL P_GetAllowedAmtPerGrams}")
+                    rows = cursor.fetchall()
+                    
+                    if rows:
+                        st.session_state.userdata = rows
+                        st.session_state.populateusers = 1
+                        st.success("Users populated successfully")
+                    else:
+                        st.error("No user data found")
+                except Exception as e:
+                    st.error(f"Error: {str(e)}")
+                finally:
+                    conn.close()
+    
+    with col2:
+        if st.button("Update Users"):
+            if st.session_state.populateusers == 1 and st.session_state.updateusers == 0:
+                st.session_state.updateusers = 1
+                st.info("Select a user to update")
+            elif st.session_state.updateusers == 1:
+                st.session_state.updateusers = 2
+                st.warning("Confirm that you are updating user values")
+            elif st.session_state.updateusers == 2:
+                st.session_state.updateusers = 0
+                st.success("User values updated")
+            else:
+                st.error("Users are not populated")
+    
+    with col3:
+        if st.button("Revert Users"):
+            st.session_state.populateusers = 0
+            st.session_state.updateusers = 0
+            st.session_state.updateusrname = ""
+            st.session_state.userdata = None
+            st.success("User data cleared")
+    
+    if st.session_state.populateusers == 1 and st.session_state.userdata:
+        user_options = [f"{row.UserName} (ID: {row.UserID})" for row in st.session_state.userdata]
+        selected_user = st.selectbox("Select User", options=user_options)
+        
+        if st.session_state.updateusers >= 1:
+            user_df = pd.DataFrame.from_records(
+                [row.__dict__ for row in st.session_state.userdata],
+                columns=st.session_state.userdata[0].__dict__.keys()
+            )
+            editable_df = st.data_editor(user_df)
+
+# Receipt management section
+with st.expander("Receipt Management"):
+    receipt_no = st.text_input("Receipt No", key="searchreceipt")
+    
+    col1, col2 = st.columns(2)
+    
+    with col1:
+        if st.button("Search Payment No"):
+            if receipt_no:
+                conn = open_connection()
+                if conn:
+                    try:
+                        cursor = conn.cursor()
+                        cursor.execute("{CALL P_GetRcptDetailsforWebsite (?, ?)}", receipt_no, 19)
+                        rows = cursor.fetchall()
+                        
+                        if rows:
+                            st.session_state.paymentdata = rows
+                            st.session_state.receiptrevert = 1
+                            st.session_state.recipt = receipt_no
+                            st.success("Payment data loaded")
+                        else:
+                            st.error("No payment data found")
+                    except Exception as e:
+                        st.error(f"Error: {str(e)}")
+                    finally:
+                        conn.close()
+            else:
+                st.error("Please enter a Receipt No")
+    
+    with col2:
+        if st.button("Revert Receipt"):
+            st.session_state.receiptrevert = 0
+            st.session_state.recipt = 0
+            st.session_state.paymentdata = None
+            st.success("Receipt data cleared")
+    
+    if st.session_state.receiptrevert == 1 and st.session_state.paymentdata:
+        payment_options = [f"Payment {idx+1}" for idx in range(len(st.session_state.paymentdata))]
+        selected_payment = st.selectbox("Select Payment", options=payment_options)
+        
+        col1, col2, col3, col4 = st.columns(4)
+        
+        with col1:
+            if st.button("Add Penalty"):
+                st.warning("Add penalty functionality would go here")
+        
+        with col2:
+            if st.button("Add NSF"):
+                st.warning("Add NSF functionality would go here")
+        
+        with col3:
+            if st.button("Remove Penalty"):
+                st.warning("Remove penalty functionality would go here")
+        
+        with col4:
+            if st.button("Remove NSF"):
+                st.warning("Remove NSF functionality would go here")
+
+# Payments section
+with st.expander("Payments"):
+    if st.button("List Payments"):
+        if st.session_state.recipt:
+            if st.session_state.paymentstable == 0:
+                conn = open_connection()
+                if conn:
+                    try:
+                        cursor = conn.cursor()
+                        cursor.execute("{CALL P_GetMortgagePaymentsHistory (?, ?, ?)}", 19, 0, st.session_state.recipt)
+                        rows = cursor.fetchall()
+                        
+                        if rows:
+                            st.session_state.paymentdata = rows
+                            st.session_state.paymentstable = 1
+                            st.success("Payments listed successfully")
+                        else:
+                            st.error("No payment data found")
+                    except Exception as e:
+                        st.error(f"Error: {str(e)}")
+                    finally:
+                        conn.close()
+            else:
+                st.info("Payments are already populated")
+        else:
+            st.error("Please search for a receipt first")
+    
+    if st.button("Remove Payments"):
+        if st.session_state.paymentstable == 1:
+            st.session_state.paymentstable = 2
+            st.warning("Confirm payment removal")
+        elif st.session_state.paymentstable == 2:
+            st.session_state.paymentstable = 0
+            st.success("Payment removed successfully")
+        else:
+            st.error("Payments are not populated")
+    
+    if st.button("Revert Payments"):
+        st.session_state.receiptrevert = 0
+        st.session_state.recipt = 0
+        st.session_state.paymentstable = 0
+        st.session_state.paymentdata = None
+        st.success("Payment data cleared")
+    
+    if st.session_state.paymentstable >= 1 and st.session_state.paymentdata:
+        payment_df = pd.DataFrame.from_records(
+            [row.__dict__ for row in st.session_state.paymentdata],
+            columns=st.session_state.paymentdata[0].__dict__.keys()
         )
-        editable_df = st.data_editor(user_df)
+        st.dataframe(payment_df)
