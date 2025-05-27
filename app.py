@@ -54,9 +54,9 @@ def validate_user(user_id, username, factor_code):
     if not conn:
         return (1, "Database connection error", 0)
     try:
-        result_div.success(twofactor_val)
+        result_div.success(factor_code)
         cursor = conn.cursor()
-        cursor.execute("{CALL P_ValidateWebUser (?, ?, ?)}", (user_id, username, twofactor_val))
+        cursor.execute("{CALL P_ValidateWebUser (?, ?, ?)}", (user_id, username, factor_code))
 
         # Try fetching first row immediately
         result = cursor.fetchone()
