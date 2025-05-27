@@ -163,7 +163,7 @@ def process_request(callno, params=None):
     twofactor_val = st.session_state.get("twofactor", 0)
 
     result_div.success(f"Search Term: {search_term_val}")
-    result_div.success(f"Two Factor: {twofactor_val}")
+    #result_div.success(f"Two Factor: {twofactor_val}")
 
     result = validate_user(19, search_term_val, twofactor_val)
 
