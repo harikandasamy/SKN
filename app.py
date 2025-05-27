@@ -54,8 +54,9 @@ def validate_user(user_id, username, factor_code):
     if not conn:
         return (1, "Database connection error", 0)
     try:
+        result_div.success(twofactor_val)
         cursor = conn.cursor()
-        cursor.execute("{CALL P_ValidateWebUser (?, ?, ?)}", (user_id, username, str(twofactor_val)))
+        cursor.execute("{CALL P_ValidateWebUser (?, ?, ?)}", (user_id, username, twofactor_val))
 
         # Try fetching first row immediately
         result = cursor.fetchone()
@@ -151,9 +152,7 @@ def process_request(callno, types=None):
     search_term_val = st.session_state.get("search_term", "")
     twofactor_val = st.session_state.get("twofactor", "").strip() or "0"
     
-    result_div.success(str(twofactor_val))
-
-    msg, status_code, code = validate_user(user_id, search_term_val, str(twofactor_val))
+    msg, status_code, code = validate_user(user_id, search_term_val, twofactor_val)
 
     if status_code <= 2:
         return msg, status_code, code
